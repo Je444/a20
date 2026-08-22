@@ -13,6 +13,70 @@ document.querySelectorAll('.nav-links a').forEach(link => {
   });
 });
 
+// 語錄輪播：自動播放 + 按鈕 + 手機滑動
+(function initQuoteCarousel() {
+  const carousel = document.getElementById('quote-carousel');
+  const track = document.getElementById('quote-track');
+  const dotsWrap = document.getElementById('carousel-dots');
+  const prevBtn = document.getElementById('carousel-prev');
+  const nextBtn = document.getElementById('carousel-next');
+  if (!carousel || !track) return;
+
+  const slides = Array.from(track.children);
+  let index = 0;
+  let autoTimer = null;
+  const AUTO_MS = 4000;
+
+  slides.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.className = 'dot' + (i === 0 ? ' active' : '');
+    dot.setAttribute('aria-label', `第 ${i + 1} 張`);
+    dot.addEventListener('click', () => goTo(i));
+    dotsWrap.appendChild(dot);
+  });
+  const dots = Array.from(dotsWrap.children);
+
+  function update() {
+    track.style.transform = `translateX(-${index * 100}%)`;
+    dots.forEach((d, i) => d.classList.toggle('active', i === index));
+  }
+  function goTo(i) {
+    index = (i + slides.length) % slides.length;
+    update();
+    restartAuto();
+  }
+  function next() { goTo(index + 1); }
+  function prev() { goTo(index - 1); }
+  function startAuto() { autoTimer = setInterval(next, AUTO_MS); }
+  function stopAuto() { clearInterval(autoTimer); }
+  function restartAuto() { stopAuto(); startAuto(); }
+
+  prevBtn.addEventListener('click', prev);
+  nextBtn.addEventListener('click', next);
+  carousel.addEventListener('mouseenter', stopAuto);
+  carousel.addEventListener('mouseleave', startAuto);
+
+  let startX = 0;
+  let isDragging = false;
+  track.addEventListener('pointerdown', (e) => {
+    isDragging = true;
+    startX = e.clientX;
+    stopAuto();
+  });
+  track.addEventListener('pointerup', (e) => {
+    if (!isDragging) return;
+    isDragging = false;
+    const diff = e.clientX - startX;
+    if (diff > 40) prev();
+    else if (diff < -40) next();
+    startAuto();
+  });
+  track.addEventListener('pointerleave', () => { isDragging = false; });
+
+  update();
+  startAuto();
+})();
+
 // 星空背景：隨機分布星星並讓它們微微閃爍
 (function initStarfield() {
   const canvas = document.getElementById('star-canvas');
