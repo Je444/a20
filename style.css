@@ -163,7 +163,6 @@ a:hover { text-decoration: underline; }
 .about-card h3 { font-size: 1.1rem; margin-bottom: 8px; }
 .about-card p { color: var(--text-muted); font-size: 0.92rem; }
 
-/* Dialog box - signature element */
 /* Quote carousel - signature element */
 .quote-carousel {
   position: relative;
@@ -288,5 +287,6 @@ a:hover { text-decoration: underline; }
 
 /* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  .hero-tag, .dialog-cursor { animation: none; }
+  .hero-tag { animation: none; }
+  .quote-track { transition: none; }
 }
