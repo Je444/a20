@@ -261,6 +261,7 @@ a:hover { text-decoration: underline; }
 .member-avatar.p1 { background: var(--coral); }
 .member-avatar.p2 { background: var(--mint); }
 .member-avatar.p3 { background: #C9A6FF; }
+.member-avatar.p4 { background: #7FD88F; }
 .member-name {
   font-size: 1.1rem;
   margin-bottom: 8px;
