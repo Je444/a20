@@ -13,24 +13,23 @@ document.querySelectorAll('.nav-links a').forEach(link => {
   });
 });
 
-// 語錄輪播：自動播放 + 按鈕 + 手機滑動
-(function initQuoteCarousel() {
-  const carousel = document.getElementById('quote-carousel');
-  const track = document.getElementById('quote-track');
-  const dotsWrap = document.getElementById('carousel-dots');
-  const prevBtn = document.getElementById('carousel-prev');
-  const nextBtn = document.getElementById('carousel-next');
+// 通用輪播邏輯：自動播放 + 按鈕 + 手機滑動
+function initCarousel({ carouselId, trackId, dotsId, prevId, nextId, autoMs = 4000 }) {
+  const carousel = document.getElementById(carouselId);
+  const track = document.getElementById(trackId);
+  const dotsWrap = document.getElementById(dotsId);
+  const prevBtn = document.getElementById(prevId);
+  const nextBtn = document.getElementById(nextId);
   if (!carousel || !track) return;
 
   const slides = Array.from(track.children);
   let index = 0;
   let autoTimer = null;
-  const AUTO_MS = 4000;
 
   slides.forEach((_, i) => {
     const dot = document.createElement('button');
     dot.className = 'dot' + (i === 0 ? ' active' : '');
-    dot.setAttribute('aria-label', `第 ${i + 1} 張`);
+    dot.setAttribute('aria-label', `第 ${i + 1} 項`);
     dot.addEventListener('click', () => goTo(i));
     dotsWrap.appendChild(dot);
   });
@@ -47,7 +46,7 @@ document.querySelectorAll('.nav-links a').forEach(link => {
   }
   function next() { goTo(index + 1); }
   function prev() { goTo(index - 1); }
-  function startAuto() { autoTimer = setInterval(next, AUTO_MS); }
+  function startAuto() { autoTimer = setInterval(next, autoMs); }
   function stopAuto() { clearInterval(autoTimer); }
   function restartAuto() { stopAuto(); startAuto(); }
 
@@ -75,7 +74,26 @@ document.querySelectorAll('.nav-links a').forEach(link => {
 
   update();
   startAuto();
-})();
+}
+
+// 語錄輪播
+initCarousel({
+  carouselId: 'quote-carousel',
+  trackId: 'quote-track',
+  dotsId: 'carousel-dots',
+  prevId: 'carousel-prev',
+  nextId: 'carousel-next',
+});
+
+// 幹部介紹輪播
+initCarousel({
+  carouselId: 'member-carousel',
+  trackId: 'member-track',
+  dotsId: 'member-dots',
+  prevId: 'member-prev',
+  nextId: 'member-next',
+  autoMs: 5000,
+});
 
 // 星空背景：隨機分布星星並讓它們微微閃爍
 (function initStarfield() {
