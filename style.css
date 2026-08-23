@@ -163,7 +163,7 @@ a:hover { text-decoration: underline; }
 .about-card h3 { font-size: 1.1rem; margin-bottom: 8px; }
 .about-card p { color: var(--text-muted); font-size: 0.92rem; }
 
-/* Quote carousel - signature element */
+/* Carousel（語錄輪播、成員輪播共用） */
 .quote-carousel {
   position: relative;
   border-radius: var(--radius);
@@ -204,6 +204,7 @@ a:hover { text-decoration: underline; }
   align-items: center;
   justify-content: center;
   transition: background 0.15s ease, color 0.15s ease;
+  z-index: 2;
 }
 .carousel-btn:hover { background: var(--coral); color: #1B1F2E; }
 .carousel-btn.prev { left: 14px; }
@@ -237,42 +238,36 @@ a:hover { text-decoration: underline; }
   color: var(--text-muted);
 }
 
-/* Member cards */
-.member-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.member-card {
+/* Member cards（放在 carousel-slide 裡面） */
+.member-slide {
   display: flex;
   align-items: center;
-  gap: 20px;
-  background: var(--panel);
-  border: 1px solid var(--panel-border);
-  border-radius: var(--radius);
-  padding: 20px 24px;
+  gap: 24px;
+  min-height: 160px;
+  padding: 40px 30px;
 }
 .member-avatar {
   flex-shrink: 0;
-  width: 60px;
-  height: 60px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 900;
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   color: #1B1F2E;
 }
 .member-avatar.p1 { background: var(--coral); }
 .member-avatar.p2 { background: var(--mint); }
 .member-avatar.p3 { background: #C9A6FF; }
 .member-name {
-  font-size: 1.05rem;
-  margin-bottom: 6px;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 .member-role {
   font-size: 0.7rem;
