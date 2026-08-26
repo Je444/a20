@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>攻略社製作小遊戲</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="games.css">
+</head>
+<body class="games-body">
+
+  <canvas id="star-canvas"></canvas>
+
+  <div class="hub">
+    <a href="index.html" class="hub-back">← 回首頁</a>
+
+    <div class="hub-left">
+      <p class="eyebrow">// MINI GAMES</p>
+      <h1 class="hub-title">攻略社<br>製作小遊戲</h1>
+      <p class="hub-sub">自己做的，不好玩不要罵太兇</p>
+      <img src="hub-cat.png" alt="貓咪吉祥物" class="hub-cat">
+    </div>
+
+    <div class="hub-right">
+      <a href="cats-game.html" class="game-tile">
+        <span class="game-tile-num">01</span>
+        <span class="game-tile-name">貓咪攻城戰</span>
+        <span class="game-tile-desc">派出貓咪打倒敵方基地</span>
+      </a>
+      <div class="game-tile game-tile--soon">
+        <span class="game-tile-num">02</span>
+        <span class="game-tile-name">敬請期待</span>
+        <span class="game-tile-desc">開發中…</span>
+      </div>
+      <div class="game-tile game-tile--soon">
+        <span class="game-tile-num">03</span>
+        <span class="game-tile-name">敬請期待</span>
+        <span class="game-tile-desc">開發中…</span>
+      </div>
+    </div>
+
+    <div class="hub-settings">
+      <span class="hub-settings-label">🔊 音量</span>
+      <input type="range" id="volume-slider" min="0" max="100" value="60">
+      <span id="volume-value">60%</span>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script src="games.js"></script>
+</body>
+</html>

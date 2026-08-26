@@ -1,0 +1,112 @@
+.games-body {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.hub {
+  position: relative;
+  z-index: 1;
+  height: 100vh;
+  display: flex;
+  padding: 40px 60px;
+  gap: 40px;
+}
+
+.hub-back {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.hub-back:hover { color: var(--coral); }
+
+.hub-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  min-width: 0;
+}
+.hub-title {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 900;
+  line-height: 1.3;
+  margin: 16px 0;
+}
+.hub-sub {
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+.hub-cat {
+  position: absolute;
+  left: -10px;
+  bottom: -20px;
+  width: 200px;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.hub-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+  max-width: 420px;
+}
+.game-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius);
+  padding: 22px 26px;
+  color: var(--text);
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+.game-tile:hover {
+  transform: translateX(6px);
+  border-color: var(--coral);
+  text-decoration: none;
+}
+.game-tile-num {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  color: var(--coral);
+}
+.game-tile-name { font-size: 1.15rem; font-weight: 700; }
+.game-tile-desc { font-size: 0.85rem; color: var(--text-muted); }
+
+.game-tile--soon {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.game-tile--soon:hover { transform: none; border-color: var(--panel-border); }
+
+.hub-settings {
+  position: absolute;
+  bottom: 24px;
+  left: 60px;
+  right: 60px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(38, 43, 61, 0.7);
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  padding: 10px 22px;
+  backdrop-filter: blur(6px);
+}
+.hub-settings-label { font-size: 0.85rem; white-space: nowrap; }
+#volume-slider { flex: 1; accent-color: var(--coral); }
+#volume-value { font-size: 0.8rem; color: var(--text-muted); width: 40px; text-align: right; }
+
+@media (max-width: 720px) {
+  .hub { flex-direction: column; padding: 70px 24px 90px; overflow-y: auto; }
+  .hub-cat { display: none; }
+  .hub-right { max-width: 100%; }
+  .hub-settings { left: 20px; right: 20px; bottom: 16px; }
+}
