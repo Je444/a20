@@ -110,3 +110,26 @@
   .hub-right { max-width: 100%; }
   .hub-settings { left: 20px; right: 20px; bottom: 16px; }
 }
+/* =========================================================
+   小遊戲入口頁：左側標題與圖片置中
+   右側按鈕維持原本位置
+========================================================= */
+
+.hub-left {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hub-left .eyebrow,
+.hub-left .hub-title,
+.hub-left .hub-sub {
+  text-align: center;
+}
+
+.hub-cat {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
