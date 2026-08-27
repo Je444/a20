@@ -1,658 +1,435 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
-
 <head>
-
 <meta charset="UTF-8">
-
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1.0"
->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>貓咪攻城戰</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-<link
-  href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+TC:wght@400;500;700;900&display=swap"
-  rel="stylesheet"
->
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="cats-game.css">
-
 </head>
-
 
 <body class="game-body">
 
 <canvas id="star-canvas"></canvas>
 
+<div class="cats-game">
 
-<div class="game-wrap">
+  <!-- =========================
+       地圖選關畫面
+  ========================== -->
+  <section id="map-screen" class="map-screen">
 
-  <!-- =====================================================
-       上方標題
-  ====================================================== -->
+    <!-- 上方標題 -->
+    <header class="map-header">
 
-  <div class="game-header">
+      <a href="games.html" class="map-back">
+        ← 返回選單
+      </a>
 
-    <a href="games.html" class="hub-back">
-      ← 返回選單
-    </a>
-
-    <div class="game-title-area">
-
-      <h1>
-        貓咪攻城戰
+      <h1 class="map-title">
+        關卡選擇
       </h1>
 
-      <!--
-        之後可以把這裡換成圖片。
-
-        目前先用 emoji，
-        方便你直接測試。
-
-        未來可以改成：
-
-        <img src="cat-logo.png">
-      -->
-
-      <div class="game-logo">
-        🐱
+      <div class="map-game-title">
+        貓咪攻城戰
       </div>
 
-    </div>
-
-  </div>
+    </header>
 
 
-  <!-- =====================================================
-       頁面內容
-  ====================================================== -->
+    <!-- 地圖 -->
+    <main class="world-map">
 
-  <div class="game-layout">
+      <!--
+        臨時地圖。
 
+        之後你有自己的圖片時，
+        可以把這整個 div 裡面的 SVG
+        換成：
 
-    <!-- =================================================
-         左側主要內容
-    ================================================== -->
+        <img src="images/game-map.jpg" class="real-map">
 
-    <main class="game-main">
+      -->
 
+      <div class="temporary-map">
 
-      <!-- =================================================
-           地圖
-      ================================================== -->
+        <div class="map-cloud cloud-1"></div>
+        <div class="map-cloud cloud-2"></div>
+        <div class="map-cloud cloud-3"></div>
 
-      <section
-        id="map-screen"
-        class="game-screen active"
-      >
+        <div class="mountain mountain-1">▲</div>
+        <div class="mountain mountain-2">▲</div>
 
-        <h2 class="screen-title">
-          關卡地圖
-        </h2>
+        <div class="lake lake-1"></div>
 
+        <!-- 道路 -->
+        <svg class="map-road" viewBox="0 0 1000 600"
+             preserveAspectRatio="none">
 
-        <div class="world-map">
+          <path
+            d="M 120 470
+               C 220 420, 240 350, 350 360
+               C 470 370, 500 470, 610 410
+               C 710 355, 700 230, 850 180"
+            fill="none"
+            stroke="#eee2bd"
+            stroke-width="9"
+            stroke-linecap="round"
+            stroke-dasharray="2 20"
+          />
 
+          <path
+            d="M 120 470
+               C 220 420, 240 350, 350 360
+               C 470 370, 500 470, 610 410
+               C 710 355, 700 230, 850 180"
+            fill="none"
+            stroke="#7d6b4c"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-dasharray="2 20"
+          />
 
-          <!-- 地圖裝飾 -->
+        </svg>
 
-          <div class="map-cloud cloud-1">
-            ☁️
-          </div>
-
-          <div class="map-cloud cloud-2">
-            ☁️
-          </div>
-
-          <div class="map-mountain mountain-1">
-            ⛰️
-          </div>
-
-          <div class="map-mountain mountain-2">
-            🌲🌲
-          </div>
-
-
-          <!-- 道路 -->
-
-          <div class="map-road road-1"></div>
-
-          <div class="map-road road-2"></div>
-
-          <div class="map-road road-3"></div>
-
-
-          <!-- 關卡 1 -->
-
-          <button
-            class="map-stage stage-1"
-            id="stage-1"
-            data-stage="0"
-          >
-            <span>1</span>
-          </button>
+        <!-- 地圖裝飾 -->
+        <div class="map-town town-1">🏠</div>
+        <div class="map-town town-2">🏡</div>
+        <div class="map-tree tree-1">🌲</div>
+        <div class="map-tree tree-2">🌲</div>
+        <div class="map-tree tree-3">🌳</div>
+        <div class="map-tree tree-4">🌳</div>
 
 
-          <!-- 關卡 2 -->
-
-          <button
-            class="map-stage stage-2"
-            id="stage-2"
-            data-stage="1"
-          >
-            <span>2</span>
-          </button>
-
-
-          <!-- 關卡 3 -->
-
-          <button
-            class="map-stage stage-3"
-            id="stage-3"
-            data-stage="2"
-          >
-            <span>3</span>
-          </button>
-
-
-          <!-- 地圖終點 -->
-
-          <div class="enemy-castle">
-            🏰
-          </div>
-
-        </div>
-
-
-        <!-- 地圖下面功能 -->
-
-        <div class="map-menu">
-
-          <button
-            class="map-menu-btn"
-            id="my-book-btn"
-          >
-            🐱
-            <span>我方圖鑑</span>
-          </button>
-
-          <button
-            class="map-menu-btn"
-            id="enemy-book-btn"
-          >
-            👾
-            <span>敵人圖鑑</span>
-          </button>
-
-          <button
-            class="map-menu-btn"
-            id="team-btn"
-          >
-            📋
-            <span>編隊</span>
-          </button>
-
-          <button
-            class="map-menu-btn map-menu-btn--battle"
-            id="quick-battle-btn"
-          >
-            ⚔️
-            <span>戰鬥開始</span>
-          </button>
-
-        </div>
-
-      </section>
-
-
-      <!-- =================================================
-           我方圖鑑
-      ================================================== -->
-
-      <section
-        id="my-book-screen"
-        class="game-screen"
-      >
-
+        <!-- =====================
+             關卡 1
+        ====================== -->
         <button
-          class="return-map"
-          data-back="map"
+          class="stage-node stage-1"
+          data-stage="0"
         >
-          ← 返回地圖
-        </button>
 
-        <h2 class="screen-title">
-          我方圖鑑
-        </h2>
+          <span class="stage-clear">NEW!</span>
 
+          <span class="stage-number">
+            1
+          </span>
 
-        <div class="encyclopedia-grid">
+          <span class="stage-name">
+            第一關
+          </span>
 
-          <div class="encyclopedia-card">
-
-            <div class="encyclopedia-icon">
-              🐱
-            </div>
-
-            <h3>
-              小貓兵
-            </h3>
-
-            <p>
-              基本型單位<br>
-              消耗：10
-            </p>
-
-          </div>
-
-
-          <div class="encyclopedia-card">
-
-            <div class="encyclopedia-icon">
-              🐈
-            </div>
-
-            <h3>
-              重裝貓
-            </h3>
-
-            <p>
-              高生命值單位<br>
-              消耗：30
-            </p>
-
-          </div>
-
-
-          <div class="encyclopedia-card locked-card">
-
-            <div class="encyclopedia-icon">
-              ❓
-            </div>
-
-            <h3>
-              未解鎖
-            </h3>
-
-            <p>
-              未來追加
-            </p>
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <!-- =================================================
-           敵人圖鑑
-      ================================================== -->
-
-      <section
-        id="enemy-book-screen"
-        class="game-screen"
-      >
-
-        <button
-          class="return-map"
-          data-back="map"
-        >
-          ← 返回地圖
-        </button>
-
-        <h2 class="screen-title">
-          敵人圖鑑
-        </h2>
-
-
-        <div class="encyclopedia-grid">
-
-          <div class="encyclopedia-card">
-
-            <div class="encyclopedia-icon">
-              👾
-            </div>
-
-            <h3>
-              基礎敵人
-            </h3>
-
-            <p>
-              最普通的敵人
-            </p>
-
-          </div>
-
-
-          <div class="encyclopedia-card">
-
-            <div class="encyclopedia-icon">
-              👹
-            </div>
-
-            <h3>
-              強化敵人
-            </h3>
-
-            <p>
-              擁有更高的能力
-            </p>
-
-          </div>
-
-
-          <div class="encyclopedia-card">
-
-            <div class="encyclopedia-icon">
-              👑
-            </div>
-
-            <h3>
-              敵方首領
-            </h3>
-
-            <p>
-              守護敵方基地
-            </p>
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <!-- =================================================
-           編隊
-      ================================================== -->
-
-      <section
-        id="team-screen"
-        class="game-screen"
-      >
-
-        <button
-          class="return-map"
-          data-back="map"
-        >
-          ← 返回地圖
-        </button>
-
-        <h2 class="screen-title">
-          編隊
-        </h2>
-
-
-        <div class="team-grid">
-
-          <div class="team-slot">
-            <span>🐱</span>
-            <small>小貓兵</small>
-          </div>
-
-          <div class="team-slot">
-            <span>🐈</span>
-            <small>重裝貓</small>
-          </div>
-
-          <div class="team-slot team-slot--empty">
-            <span>＋</span>
-            <small>空位</small>
-          </div>
-
-          <div class="team-slot team-slot--empty">
-            <span>＋</span>
-            <small>空位</small>
-          </div>
-
-          <div class="team-slot team-slot--empty">
-            <span>＋</span>
-            <small>空位</small>
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <!-- =================================================
-           戰鬥
-      ================================================== -->
-
-      <section
-        id="battle-screen"
-        class="game-screen battle-screen"
-      >
-
-        <button
-          class="return-map"
-          id="battle-return-map"
-        >
-          ← 返回地圖
         </button>
 
 
-        <!-- 血條只在戰鬥中出現 -->
+        <!-- =====================
+             關卡 2
+        ====================== -->
+        <button
+          class="stage-node stage-2 locked"
+          data-stage="1"
+        >
 
-        <div class="hp-bars">
+          <span class="stage-clear">LOCK</span>
 
-          <div class="hp-block">
+          <span class="stage-number">
+            2
+          </span>
 
-            <span class="hp-label">
-              我方基地
-            </span>
+          <span class="stage-name">
+            第二關
+          </span>
 
-            <div class="hp-track">
-
-              <div
-                class="hp-fill hp-fill--me"
-                id="hp-me"
-              ></div>
-
-            </div>
-
-          </div>
+        </button>
 
 
-          <div class="hp-block">
+        <!-- =====================
+             關卡 3
+        ====================== -->
+        <button
+          class="stage-node stage-3 locked"
+          data-stage="2"
+        >
 
-            <span class="hp-label">
-              敵方基地
-            </span>
+          <span class="stage-clear">LOCK</span>
 
-            <div class="hp-track">
+          <span class="stage-number">
+            3
+          </span>
 
-              <div
-                class="hp-fill hp-fill--enemy"
-                id="hp-enemy"
-              ></div>
+          <span class="stage-name">
+            第三關
+          </span>
 
-            </div>
+        </button>
 
-          </div>
 
+        <!-- 玩家位置 -->
+        <div class="player-cat">
+          🐱
         </div>
 
-
-        <canvas
-          id="battle-canvas"
-          width="900"
-          height="220"
-        ></canvas>
-
-
-        <div class="deploy-bar">
-
-          <div class="energy-title">
-            戰鬥能量
-          </div>
-
-          <div class="energy-track">
-
-            <div
-              class="energy-fill"
-              id="energy-fill"
-            ></div>
-
-          </div>
-
-
-          <div class="deploy-buttons">
-
-            <button
-              class="deploy-btn"
-              id="deploy-basic"
-              data-cost="10"
-            >
-
-              <span class="deploy-icon">
-                🐱
-              </span>
-
-              <span class="deploy-name">
-                小貓兵
-              </span>
-
-              <span class="deploy-cost">
-                10
-              </span>
-
-            </button>
-
-
-            <button
-              class="deploy-btn"
-              id="deploy-tank"
-              data-cost="30"
-            >
-
-              <span class="deploy-icon">
-                🐈
-              </span>
-
-              <span class="deploy-name">
-                重裝貓
-              </span>
-
-              <span class="deploy-cost">
-                30
-              </span>
-
-            </button>
-
-          </div>
-
-        </div>
-
-
-        <div
-          class="game-message"
-          id="game-message"
-        ></div>
-
-      </section>
+      </div>
 
     </main>
 
 
-    <!-- =================================================
-         右側攻略社
-    ================================================== -->
+    <!-- =========================
+         關卡資訊
+    ========================== -->
 
-    <aside class="guide-sidebar">
+    <div class="stage-info" id="stage-info">
 
-      <div class="guide-title">
-        攻略社
+      <div class="stage-info-title">
+        第一關
+      </div>
+
+      <div class="stage-info-line">
+        敵方基地
+        <strong id="info-hp">100</strong>
+      </div>
+
+      <div class="stage-info-line">
+        難度
+        <span id="info-difficulty">★</span>
+      </div>
+
+    </div>
+
+
+    <!-- =========================
+         戰鬥開始
+    ========================== -->
+
+    <button
+      id="battle-start"
+      class="battle-start"
+    >
+      <span>戰鬥開始!!</span>
+    </button>
+
+
+    <!-- =========================
+         底部功能列
+    ========================== -->
+
+    <nav class="map-bottom">
+
+      <button
+        class="bottom-btn"
+        id="my-book-btn"
+      >
+        <span class="bottom-icon">🐱</span>
+        <span>我方圖鑑</span>
+      </button>
+
+
+      <button
+        class="bottom-btn"
+        id="enemy-book-btn"
+      >
+        <span class="bottom-icon">👾</span>
+        <span>敵人圖鑑</span>
+      </button>
+
+
+      <button
+        class="bottom-btn"
+        id="formation-btn"
+      >
+        <span class="bottom-icon">⚔️</span>
+        <span>編隊</span>
+      </button>
+
+
+      <div class="bottom-spacer"></div>
+
+
+      <div class="strategy-club">
+        <span class="club-icon">📖</span>
+        <span>攻略社</span>
+      </div>
+
+    </nav>
+
+  </section>
+
+
+  <!-- ==================================================
+       戰鬥畫面
+  =================================================== -->
+
+  <section
+    id="battle-screen"
+    class="battle-screen hidden"
+  >
+
+    <div class="battle-topbar">
+
+      <button
+        id="battle-back"
+        class="battle-back"
+      >
+        ← 關卡地圖
+      </button>
+
+      <div
+        id="battle-stage-title"
+        class="battle-stage-title"
+      >
+        第一關
+      </div>
+
+    </div>
+
+
+    <!-- 基地 HP -->
+    <div class="hp-bars">
+
+      <div class="hp-block">
+
+        <span class="hp-label">
+          我方基地
+        </span>
+
+        <div class="hp-track">
+          <div
+            class="hp-fill hp-fill--me"
+            id="hp-me"
+          ></div>
+        </div>
+
       </div>
 
 
-      <div class="guide-content">
+      <div class="hp-block">
 
-        <h3>
-          關卡攻略
-        </h3>
+        <span class="hp-label">
+          敵方基地
+        </span>
 
-        <p>
-          目前共有 3 個關卡。
-        </p>
-
-        <p>
-          從「1」開始挑戰，
-          通關後會解鎖下一關。
-        </p>
-
-
-        <hr>
-
-
-        <h3>
-          新手提示
-        </h3>
-
-        <p>
-          能量會隨時間增加。
-        </p>
-
-        <p>
-          小貓兵消耗較低，
-          適合快速出兵。
-        </p>
-
-        <p>
-          重裝貓生命值較高，
-          適合正面作戰。
-        </p>
+        <div class="hp-track">
+          <div
+            class="hp-fill hp-fill--enemy"
+            id="hp-enemy"
+          ></div>
+        </div>
 
       </div>
 
-    </aside>
-
-  </div>
-
-</div>
+    </div>
 
 
-<!-- =====================================================
-     關卡彈窗
-====================================================== -->
+    <!-- 戰鬥場地 -->
+    <canvas
+      id="battle-canvas"
+      width="900"
+      height="220"
+    ></canvas>
 
-<div
-  class="stage-modal"
-  id="stage-modal"
->
 
-  <div class="stage-modal-box">
+    <!-- 能量 -->
+    <div class="deploy-bar">
 
-    <h2 id="stage-modal-title">
-      關卡 1
-    </h2>
+      <div class="energy-track">
 
-    <p id="stage-modal-description">
-      準備開始挑戰。
-    </p>
+        <div
+          class="energy-fill"
+          id="energy-fill"
+        ></div>
 
-    <div class="stage-modal-buttons">
+      </div>
+
+
+      <div class="deploy-buttons">
+
+        <button
+          class="deploy-btn"
+          id="deploy-basic"
+          data-cost="10"
+        >
+
+          <span class="deploy-icon">
+            🐱
+          </span>
+
+          <span class="deploy-name">
+            小貓兵
+          </span>
+
+          <span class="deploy-cost">
+            10
+          </span>
+
+        </button>
+
+
+        <button
+          class="deploy-btn"
+          id="deploy-tank"
+          data-cost="30"
+        >
+
+          <span class="deploy-icon">
+            🐈
+          </span>
+
+          <span class="deploy-name">
+            重裝貓
+          </span>
+
+          <span class="deploy-cost">
+            30
+          </span>
+
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div
+      class="game-message"
+      id="game-message"
+    ></div>
+
+  </section>
+
+
+  <!-- =========================
+       圖鑑 / 編隊視窗
+  ========================== -->
+
+  <div
+    id="menu-overlay"
+    class="menu-overlay hidden"
+  >
+
+    <div class="menu-panel">
 
       <button
-        id="stage-start-btn"
-        class="modal-btn modal-btn--start"
+        id="menu-close"
+        class="menu-close"
       >
-        ⚔️ 開始戰鬥
+        ×
       </button>
 
-      <button
-        id="stage-cancel-btn"
-        class="modal-btn"
-      >
-        返回
-      </button>
+      <h2 id="menu-title">
+        我方圖鑑
+      </h2>
+
+      <div
+        id="menu-content"
+        class="menu-content"
+      ></div>
 
     </div>
 
