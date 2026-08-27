@@ -21,45 +21,16 @@
 
 <div class="cats-game">
 
-  <!-- =========================
-       地圖選關畫面
-  ========================== -->
   <section id="map-screen" class="map-screen">
 
-    <!-- 上方標題 -->
     <header class="map-header">
-
-      <a href="games.html" class="map-back">
-        ← 返回選單
-      </a>
-
-      <h1 class="map-title">
-        關卡選擇
-      </h1>
-
-      <div class="map-game-title">
-        貓咪攻城戰
-      </div>
-
+      <a href="games.html" class="map-back">← 返回選單</a>
+      <h1 class="map-title">關卡選擇</h1>
+      <div class="map-game-title">貓咪攻城戰</div>
     </header>
 
-
-    <!-- 地圖 -->
     <main class="world-map">
-
-      <!--
-        臨時地圖。
-
-        之後你有自己的圖片時，
-        可以把這整個 div 裡面的 SVG
-        換成：
-
-        <img src="images/game-map.jpg" class="real-map">
-
-      -->
-
       <div class="temporary-map">
-
         <div class="map-cloud cloud-1"></div>
         <div class="map-cloud cloud-2"></div>
         <div class="map-cloud cloud-3"></div>
@@ -69,37 +40,15 @@
 
         <div class="lake lake-1"></div>
 
-        <!-- 道路 -->
-        <svg class="map-road" viewBox="0 0 1000 600"
-             preserveAspectRatio="none">
-
+        <svg class="map-road" viewBox="0 0 1000 600" preserveAspectRatio="none">
           <path
-            d="M 120 470
-               C 220 420, 240 350, 350 360
-               C 470 370, 500 470, 610 410
-               C 710 355, 700 230, 850 180"
-            fill="none"
-            stroke="#eee2bd"
-            stroke-width="9"
-            stroke-linecap="round"
-            stroke-dasharray="2 20"
-          />
-
+            d="M 120 470 C 220 420, 240 350, 350 360 C 470 370, 500 470, 610 410 C 710 355, 700 230, 850 180"
+            fill="none" stroke="#eee2bd" stroke-width="9" stroke-linecap="round" stroke-dasharray="2 20" />
           <path
-            d="M 120 470
-               C 220 420, 240 350, 350 360
-               C 470 370, 500 470, 610 410
-               C 710 355, 700 230, 850 180"
-            fill="none"
-            stroke="#7d6b4c"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-dasharray="2 20"
-          />
-
+            d="M 120 470 C 220 420, 240 350, 350 360 C 470 370, 500 470, 610 410 C 710 355, 700 230, 850 180"
+            fill="none" stroke="#7d6b4c" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 20" />
         </svg>
 
-        <!-- 地圖裝飾 -->
         <div class="map-town town-1">🏠</div>
         <div class="map-town town-2">🏡</div>
         <div class="map-tree tree-1">🌲</div>
@@ -107,336 +56,109 @@
         <div class="map-tree tree-3">🌳</div>
         <div class="map-tree tree-4">🌳</div>
 
-
-        <!-- =====================
-             關卡 1
-        ====================== -->
-        <button
-          class="stage-node stage-1"
-          data-stage="0"
-        >
-
+        <button class="stage-node stage-1" data-stage="0">
           <span class="stage-clear">NEW!</span>
-
-          <span class="stage-number">
-            1
-          </span>
-
-          <span class="stage-name">
-            第一關
-          </span>
-
+          <span class="stage-number">1</span>
+          <span class="stage-name">第一關</span>
         </button>
 
-
-        <!-- =====================
-             關卡 2
-        ====================== -->
-        <button
-          class="stage-node stage-2 locked"
-          data-stage="1"
-        >
-
+        <button class="stage-node stage-2 locked" data-stage="1">
           <span class="stage-clear">LOCK</span>
-
-          <span class="stage-number">
-            2
-          </span>
-
-          <span class="stage-name">
-            第二關
-          </span>
-
+          <span class="stage-number">2</span>
+          <span class="stage-name">第二關</span>
         </button>
 
-
-        <!-- =====================
-             關卡 3
-        ====================== -->
-        <button
-          class="stage-node stage-3 locked"
-          data-stage="2"
-        >
-
+        <button class="stage-node stage-3 locked" data-stage="2">
           <span class="stage-clear">LOCK</span>
-
-          <span class="stage-number">
-            3
-          </span>
-
-          <span class="stage-name">
-            第三關
-          </span>
-
+          <span class="stage-number">3</span>
+          <span class="stage-name">第三關</span>
         </button>
 
-
-        <!-- 玩家位置 -->
-        <div class="player-cat">
-          🐱
-        </div>
-
+        <div class="player-cat">🐱</div>
       </div>
-
     </main>
 
-
-    <!-- =========================
-         關卡資訊
-    ========================== -->
-
     <div class="stage-info" id="stage-info">
-
-      <div class="stage-info-title">
-        第一關
-      </div>
-
-      <div class="stage-info-line">
-        敵方基地
-        <strong id="info-hp">100</strong>
-      </div>
-
-      <div class="stage-info-line">
-        難度
-        <span id="info-difficulty">★</span>
-      </div>
-
+      <div class="stage-info-title">第一關</div>
+      <div class="stage-info-line">敵方基地 <strong id="info-hp">100</strong></div>
+      <div class="stage-info-line">難度 <span id="info-difficulty">★</span></div>
     </div>
 
-
-    <!-- =========================
-         戰鬥開始
-    ========================== -->
-
-    <button
-      id="battle-start"
-      class="battle-start"
-    >
+    <button id="battle-start" class="battle-start">
       <span>戰鬥開始!!</span>
     </button>
 
-
-    <!-- =========================
-         底部功能列
-    ========================== -->
-
     <nav class="map-bottom">
-
-      <button
-        class="bottom-btn"
-        id="my-book-btn"
-      >
+      <button class="bottom-btn" id="my-book-btn">
         <span class="bottom-icon">🐱</span>
         <span>我方圖鑑</span>
       </button>
-
-
-      <button
-        class="bottom-btn"
-        id="enemy-book-btn"
-      >
+      <button class="bottom-btn" id="enemy-book-btn">
         <span class="bottom-icon">👾</span>
         <span>敵人圖鑑</span>
       </button>
-
-
-      <button
-        class="bottom-btn"
-        id="formation-btn"
-      >
+      <button class="bottom-btn" id="formation-btn">
         <span class="bottom-icon">⚔️</span>
         <span>編隊</span>
       </button>
-
-
       <div class="bottom-spacer"></div>
-
-
       <div class="strategy-club">
         <span class="club-icon">📖</span>
         <span>攻略社</span>
       </div>
-
     </nav>
 
   </section>
 
-
-  <!-- ==================================================
-       戰鬥畫面
-  =================================================== -->
-
-  <section
-    id="battle-screen"
-    class="battle-screen hidden"
-  >
+  <section id="battle-screen" class="battle-screen hidden">
 
     <div class="battle-topbar">
-
-      <button
-        id="battle-back"
-        class="battle-back"
-      >
-        ← 關卡地圖
-      </button>
-
-      <div
-        id="battle-stage-title"
-        class="battle-stage-title"
-      >
-        第一關
-      </div>
-
+      <button id="battle-back" class="battle-back">← 關卡地圖</button>
+      <div id="battle-stage-title" class="battle-stage-title">第一關</div>
     </div>
 
-
-    <!-- 基地 HP -->
     <div class="hp-bars">
-
       <div class="hp-block">
-
-        <span class="hp-label">
-          我方基地
-        </span>
-
-        <div class="hp-track">
-          <div
-            class="hp-fill hp-fill--me"
-            id="hp-me"
-          ></div>
-        </div>
-
+        <span class="hp-label">我方基地</span>
+        <div class="hp-track"><div class="hp-fill hp-fill--me" id="hp-me"></div></div>
       </div>
-
-
       <div class="hp-block">
-
-        <span class="hp-label">
-          敵方基地
-        </span>
-
-        <div class="hp-track">
-          <div
-            class="hp-fill hp-fill--enemy"
-            id="hp-enemy"
-          ></div>
-        </div>
-
+        <span class="hp-label">敵方基地</span>
+        <div class="hp-track"><div class="hp-fill hp-fill--enemy" id="hp-enemy"></div></div>
       </div>
-
     </div>
 
+    <canvas id="battle-canvas" width="900" height="220"></canvas>
 
-    <!-- 戰鬥場地 -->
-    <canvas
-      id="battle-canvas"
-      width="900"
-      height="220"
-    ></canvas>
-
-
-    <!-- 能量 -->
     <div class="deploy-bar">
-
-      <div class="energy-track">
-
-        <div
-          class="energy-fill"
-          id="energy-fill"
-        ></div>
-
-      </div>
-
-
+      <div class="energy-track"><div class="energy-fill" id="energy-fill"></div></div>
       <div class="deploy-buttons">
-
-        <button
-          class="deploy-btn"
-          id="deploy-basic"
-          data-cost="10"
-        >
-
-          <span class="deploy-icon">
-            🐱
-          </span>
-
-          <span class="deploy-name">
-            小貓兵
-          </span>
-
-          <span class="deploy-cost">
-            10
-          </span>
-
+        <button class="deploy-btn" id="deploy-basic" data-cost="10">
+          <span class="deploy-icon">🐱</span>
+          <span class="deploy-name">小貓兵</span>
+          <span class="deploy-cost">10</span>
         </button>
-
-
-        <button
-          class="deploy-btn"
-          id="deploy-tank"
-          data-cost="30"
-        >
-
-          <span class="deploy-icon">
-            🐈
-          </span>
-
-          <span class="deploy-name">
-            重裝貓
-          </span>
-
-          <span class="deploy-cost">
-            30
-          </span>
-
+        <button class="deploy-btn" id="deploy-tank" data-cost="30">
+          <span class="deploy-icon">🐈</span>
+          <span class="deploy-name">重裝貓</span>
+          <span class="deploy-cost">30</span>
         </button>
-
       </div>
-
     </div>
 
-
-    <div
-      class="game-message"
-      id="game-message"
-    ></div>
+    <div class="game-message" id="game-message"></div>
 
   </section>
 
-
-  <!-- =========================
-       圖鑑 / 編隊視窗
-  ========================== -->
-
-  <div
-    id="menu-overlay"
-    class="menu-overlay hidden"
-  >
-
+  <div id="menu-overlay" class="menu-overlay hidden">
     <div class="menu-panel">
-
-      <button
-        id="menu-close"
-        class="menu-close"
-      >
-        ×
-      </button>
-
-      <h2 id="menu-title">
-        我方圖鑑
-      </h2>
-
-      <div
-        id="menu-content"
-        class="menu-content"
-      ></div>
-
+      <button id="menu-close" class="menu-close">×</button>
+      <h2 id="menu-title">我方圖鑑</h2>
+      <div id="menu-content" class="menu-content"></div>
     </div>
-
   </div>
 
 </div>
-
 
 <script src="script.js"></script>
 <script src="cats-game.js"></script>
