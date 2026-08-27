@@ -39,8 +39,8 @@ const CANVAS_H=900;
 const GROUND_Y=650;
 const LEFT_BASE_X=150;
 const RIGHT_BASE_X=1650;
-const PLAYER_SPAWN_X=250;
-const ENEMY_SPAWN_X=1550;
+const PLAYER_SPAWN_X=1550;
+const ENEMY_SPAWN_X=250;
 const BASE_ATTACK_RANGE=120;
 const BASE_ATTACK_COOLDOWN=1500;
 
@@ -278,9 +278,10 @@ function nearestTarget(unit,enemies){
   for(const e of enemies){
     if(e.dead)continue;
     const d=distanceX(unit,e);
-    // 只找前方或正面接觸的敵人；避免後方單位把前排跳過。
-    const isAhead=unit.side==="me"?e.x>=unit.x-8:e.x<=unit.x+8;
-    if(isAhead && d<bestDist){best=e;bestDist=d;}
+    // 正常狀態只鎖定前方；如果已經發生碰撞，雙方都視為可攻擊，避免穿透或卡死。
+    const overlapping=d<=unit.radius+e.radius+10;
+    const isAhead=unit.side==="me"?e.x<=unit.x+8:e.x>=unit.x-8;
+    if((isAhead||overlapping)&&d<bestDist){best=e;bestDist=d;}
   }
   return {target:best,dist:bestDist};
 }
@@ -350,9 +351,11 @@ function updateUnit(unit,dt,stageIndex){
 
   const speed=unit.speed*125*(unit.side==="enemy"?STAGES[stageIndex].enemySpeedMul:1);
   if(unit.side==="me"){
-    unit.x=Math.min(RIGHT_BASE_X-80,unit.x+speed*dt);
-  }else{
+    // 我方貓塔在右側：從右往左推進
     unit.x=Math.max(LEFT_BASE_X+80,unit.x-speed*dt);
+  }else{
+    // 敵方基地在左側：從左往右推進
+    unit.x=Math.min(RIGHT_BASE_X-80,unit.x+speed*dt);
   }
 }
 
@@ -480,6 +483,21 @@ function drawBackground(){
     ctx.fill();
   }
 }
+function roundedRectPath(x,y,w,h,r){
+  // 不依賴 CanvasRenderingContext2D.roundRect，避免部分手機瀏覽器因此中斷整個戰鬥主循環。
+  r=Math.min(r,Math.abs(w)/2,Math.abs(h)/2);
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y);
+  ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);
+  ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);
+  ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+}
 function drawBase(x,side){
   ctx.save();
   ctx.translate(x,GROUND_Y+4);
@@ -489,13 +507,13 @@ function drawBase(x,side){
 
   if(side==="enemy"){
     ctx.fillStyle="#725d35";ctx.strokeStyle="#30281a";ctx.lineWidth=8;
-    ctx.beginPath();ctx.roundRect(-75,-180,150,210,18);ctx.fill();ctx.stroke();
+    roundedRectPath(-75,-180,150,210,18);ctx.fill();ctx.stroke();
     ctx.fillStyle="#a88a4e";ctx.beginPath();ctx.moveTo(-65,-180);ctx.lineTo(0,-225);ctx.lineTo(65,-180);ctx.closePath();ctx.fill();ctx.stroke();
     ctx.fillStyle="#1d1d1d";ctx.beginPath();ctx.arc(0,-120,42,0,Math.PI*2);ctx.fill();
     ctx.font="52px sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("👾",0,-120);
   }else{
     ctx.fillStyle="#f7f7f7";ctx.strokeStyle="#252525";ctx.lineWidth=8;
-    ctx.beginPath();ctx.roundRect(-78,-190,156,220,12);ctx.fill();ctx.stroke();
+    roundedRectPath(-78,-190,156,220,12);ctx.fill();ctx.stroke();
     ctx.fillStyle="#bfe7ef";
     for(let y=-155;y<25;y+=34)ctx.fillRect(-72,y,144,15);
     ctx.font="58px sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("🐱",0,-215);
@@ -503,7 +521,7 @@ function drawBase(x,side){
 
   // 炮管
   ctx.fillStyle="#777";ctx.strokeStyle="#202020";ctx.lineWidth=10;
-  ctx.beginPath();ctx.roundRect(side==="enemy"?-112:-10,-125,112,44,22);ctx.fill();ctx.stroke();
+  roundedRectPath(side==="enemy"?-112:-10,-125,112,44,22);ctx.fill();ctx.stroke();
   ctx.restore();
 }
 function drawUnit(u){
