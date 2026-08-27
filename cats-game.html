@@ -25,11 +25,14 @@
 
 <header class="map-header">
 <a href="games.html" class="map-back">← 返回選單</a>
+
 <h1 class="map-title">關卡選擇</h1>
+
 <div class="map-game-title">貓咪攻城戰</div>
 </header>
 
 <main class="world-map">
+
 <div class="temporary-map">
 
 <div class="map-cloud cloud-1"></div>
@@ -93,6 +96,7 @@ stroke-dasharray="2 20"
 </main>
 
 <div class="stage-info" id="stage-info">
+
 <div class="stage-info-title">第一關</div>
 
 <div class="stage-info-line">
@@ -104,6 +108,7 @@ stroke-dasharray="2 20"
 <span>難度</span>
 <span id="info-difficulty">★</span>
 </div>
+
 </div>
 
 <button id="battle-start" class="battle-start">
@@ -160,45 +165,43 @@ stroke-dasharray="2 20"
 
 <div class="battle-hud">
 
-<div class="base-hud my-hud">
-<div class="hud-title">
-我方基地
+<div class="battle-base-hp">
+
+<div class="base-hp-block">
+<div class="base-hp-head">
+<span>敵方基地</span>
+<strong id="enemy-hp-text">236,000 / 236,000</strong>
 </div>
 
-<div class="hud-hp">
-<span id="my-hp-text">1,200,000 / 1,200,000</span>
-</div>
-
-<div class="hp-track">
-<div id="hp-me" class="hp-fill hp-fill--me"></div>
+<div class="base-hp-track">
+<div id="hp-enemy" class="base-hp-fill enemy"></div>
 </div>
 </div>
 
 
-<div class="money-hud">
-<span class="money-label">資金</span>
+<div class="base-hp-block">
+<div class="base-hp-head">
+<span>我方基地</span>
+<strong id="my-hp-text">1,200,000 / 1,200,000</strong>
+</div>
+
+<div class="base-hp-track">
+<div id="hp-me" class="base-hp-fill me"></div>
+</div>
+</div>
+
+</div>
+
+
+<div class="money-box">
+<span>金錢</span>
 <strong id="money-value">1,869</strong>
 </div>
 
-
-<div class="base-hud enemy-hud">
-<div class="hud-title">
-敵方基地
-</div>
-
-<div class="hud-hp">
-<span id="enemy-hp-text">236,000 / 236,000</span>
-</div>
-
-<div class="hp-track">
-<div id="hp-enemy" class="hp-fill hp-fill--enemy"></div>
-</div>
-</div>
-
 </div>
 
 
-<div class="battle-field-wrap">
+<div class="battle-field">
 
 <canvas
 id="battle-canvas"
@@ -209,97 +212,96 @@ height="900">
 </div>
 
 
-<div class="deploy-bar">
+<div class="deploy-area">
 
-<div class="money-progress">
-<div class="money-progress-fill" id="energy-fill"></div>
+<div class="deploy-panel">
+
+<div class="deploy-title">
+<span>貓咪出擊</span>
 </div>
 
-<div class="deploy-buttons">
+<div class="unit-cards">
 
-<button class="unit-card" data-unit="cat1" data-cost="150">
-<div class="unit-card-image">
-<img src="assets/cat1.svg" alt="小貓兵">
-</div>
+<button
+class="unit-card"
+data-unit="cat1"
+data-cost="150">
 
-<div class="unit-card-name">
-小貓兵
-</div>
+<img src="assets/cat1.svg" alt="貓咪一">
 
-<div class="unit-card-cost">
-150
-</div>
+<span class="unit-card-name">貓咪一</span>
 
-<div class="cooldown-text"></div>
+<span class="unit-card-cost">150</span>
+
+<span class="cooldown-text"></span>
+
 </button>
 
 
-<button class="unit-card" data-unit="cat2" data-cost="300">
-<div class="unit-card-image">
-<img src="assets/cat2.svg" alt="戰士貓">
-</div>
+<button
+class="unit-card"
+data-unit="cat2"
+data-cost="300">
 
-<div class="unit-card-name">
-戰士貓
-</div>
+<img src="assets/cat2.svg" alt="貓咪二">
 
-<div class="unit-card-cost">
-300
-</div>
+<span class="unit-card-name">貓咪二</span>
 
-<div class="cooldown-text"></div>
+<span class="unit-card-cost">300</span>
+
+<span class="cooldown-text"></span>
+
 </button>
 
 
-<button class="unit-card" data-unit="cat3" data-cost="540">
-<div class="unit-card-image">
-<img src="assets/cat3.svg" alt="重裝貓">
-</div>
+<button
+class="unit-card"
+data-unit="cat3"
+data-cost="540">
 
-<div class="unit-card-name">
-重裝貓
-</div>
+<img src="assets/cat3.svg" alt="貓咪三">
 
-<div class="unit-card-cost">
-540
-</div>
+<span class="unit-card-name">貓咪三</span>
 
-<div class="cooldown-text"></div>
+<span class="unit-card-cost">540</span>
+
+<span class="cooldown-text"></span>
+
 </button>
 
 
-<button class="unit-card" data-unit="cat4" data-cost="690">
-<div class="unit-card-image">
-<img src="assets/cat4.svg" alt="炮擊貓">
-</div>
+<button
+class="unit-card"
+data-unit="cat4"
+data-cost="690">
 
-<div class="unit-card-name">
-炮擊貓
-</div>
+<img src="assets/cat4.svg" alt="貓咪四">
 
-<div class="unit-card-cost">
-690
-</div>
+<span class="unit-card-name">貓咪四</span>
 
-<div class="cooldown-text"></div>
+<span class="unit-card-cost">690</span>
+
+<span class="cooldown-text"></span>
+
 </button>
 
 
-<button class="unit-card" data-unit="cat5" data-cost="950">
-<div class="unit-card-image">
-<img src="assets/cat5.svg" alt="巨型貓">
-</div>
+<button
+class="unit-card"
+data-unit="cat5"
+data-cost="950">
 
-<div class="unit-card-name">
-巨型貓
-</div>
+<img src="assets/cat5.svg" alt="貓咪五">
 
-<div class="unit-card-cost">
-950
-</div>
+<span class="unit-card-name">貓咪五</span>
 
-<div class="cooldown-text"></div>
+<span class="unit-card-cost">950</span>
+
+<span class="cooldown-text"></span>
+
 </button>
+
+</div>
 
 </div>
 
@@ -320,7 +322,7 @@ height="900">
 </button>
 
 <button id="pause-exit">
-返回地圖
+離開戰鬥
 </button>
 
 </div>
