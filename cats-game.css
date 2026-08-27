@@ -110,3 +110,53 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden}
 @media (orientation:portrait) and (max-width:700px){
   .battle-stage:after{content:"建議將手機橫放遊玩";position:absolute;z-index:300;left:50%;top:50%;transform:translate(-50%,-50%);padding:13px 18px;border-radius:12px;background:rgba(0,0,0,.72);color:#fff;font-weight:900;pointer-events:none}
 }
+
+
+/* =====================================================
+   v3 戰鬥系統：真正移動 / 碰撞 / 攻擊
+   ===================================================== */
+#battle-canvas{
+  image-rendering:auto;
+  touch-action:none;
+}
+
+.unit-card{
+  user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+.cooldown-mask{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.64);
+  transform:scaleY(0);
+  transition:transform .08s linear;
+}
+.unit-card.cooldown .cooldown-mask{transform:scaleY(1)}
+.cooldown-text{
+  color:#fff;
+  font-family:"Press Start 2P",monospace;
+  font-size:14px;
+  text-shadow:2px 2px 0 #000;
+}
+.unit-card.disabled:not(.cooldown) .unit-price{
+  color:#999;
+}
+
+/* 戰鬥中的小型提示 */
+.battle-tip{
+  position:absolute;
+  z-index:45;
+  left:50%;
+  top:14%;
+  transform:translateX(-50%);
+  color:rgba(255,255,255,.8);
+  font-size:14px;
+  font-weight:700;
+  text-shadow:2px 2px 0 #000;
+  pointer-events:none;
+}
+@media(max-width:700px){
+  .battle-tip{top:14%;font-size:9px}
+  .cooldown-text{font-size:9px}
+}
