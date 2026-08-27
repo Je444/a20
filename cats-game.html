@@ -2,166 +2,155 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>貓咪攻城戰</title>
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
-
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="cats-game.css">
 </head>
-
 <body class="game-body">
-
 <canvas id="star-canvas"></canvas>
 
 <div class="cats-game">
 
-  <section id="map-screen" class="map-screen">
+<section id="map-screen" class="map-screen">
+<header class="map-header">
+<a href="games.html" class="map-back">← 返回選單</a>
+<h1 class="map-title">關卡選擇</h1>
+<div class="map-game-title">貓咪攻城戰</div>
+</header>
 
-    <header class="map-header">
-      <a href="games.html" class="map-back">← 返回選單</a>
-      <h1 class="map-title">關卡選擇</h1>
-      <div class="map-game-title">貓咪攻城戰</div>
+<main class="world-map">
+<div class="temporary-map">
+<div class="map-cloud cloud-1"></div>
+<div class="map-cloud cloud-2"></div>
+<div class="map-cloud cloud-3"></div>
+<div class="mountain mountain-1">▲</div>
+<div class="mountain mountain-2">▲</div>
+<div class="lake lake-1"></div>
+<svg class="map-road" viewBox="0 0 1000 600" preserveAspectRatio="none">
+<path d="M 120 470 C 220 420, 240 350, 350 360 C 470 370, 500 470, 610 410 C 710 355, 700 230, 850 180"
+fill="none" stroke="#eee2bd" stroke-width="9" stroke-linecap="round" stroke-dasharray="2 20" />
+<path d="M 120 470 C 220 420, 240 350, 350 360 C 470 370, 500 470, 610 410 C 710 355, 700 230, 850 180"
+fill="none" stroke="#7d6b4c" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 20" />
+</svg>
+<div class="map-town town-1">🏠</div><div class="map-town town-2">🏡</div>
+<div class="map-tree tree-1">🌲</div><div class="map-tree tree-2">🌲</div>
+<div class="map-tree tree-3">🌳</div><div class="map-tree tree-4">🌳</div>
+
+<button class="stage-node stage-1" data-stage="0"><span class="stage-clear">NEW!</span><span class="stage-number">1</span><span class="stage-name">第一關</span></button>
+<button class="stage-node stage-2 locked" data-stage="1"><span class="stage-clear">LOCK</span><span class="stage-number">2</span><span class="stage-name">第二關</span></button>
+<button class="stage-node stage-3 locked" data-stage="2"><span class="stage-clear">LOCK</span><span class="stage-number">3</span><span class="stage-name">第三關</span></button>
+<div class="player-cat">🐱</div>
+</div>
+</main>
+
+<div class="stage-info" id="stage-info">
+<div class="stage-info-title">第一關</div>
+<div class="stage-info-line">敵方基地 <strong id="info-hp">100</strong></div>
+<div class="stage-info-line">難度 <span id="info-difficulty">★</span></div>
+</div>
+<button id="battle-start" class="battle-start"><span>戰鬥開始!!</span></button>
+
+<nav class="map-bottom">
+<button class="bottom-btn" id="my-book-btn"><span class="bottom-icon">🐱</span><span>我方圖鑑</span></button>
+<button class="bottom-btn" id="enemy-book-btn"><span class="bottom-icon">👾</span><span>敵人圖鑑</span></button>
+<button class="bottom-btn" id="formation-btn"><span class="bottom-icon">⚔️</span><span>編隊</span></button>
+<div class="bottom-spacer"></div><div class="strategy-club"><span class="club-icon">📖</span><span>攻略社</span></div>
+</nav>
+</section>
+
+<!-- =========================================================
+     全新戰鬥畫面：以你提供的參考圖為版型
+     ========================================================= -->
+<section id="battle-screen" class="battle-screen hidden">
+  <div class="battle-stage">
+    <div class="battle-sky"></div>
+    <div class="battle-ground"></div>
+
+    <header class="battle-hud">
+      <button id="battle-pause" class="pause-button" aria-label="暫停">Ⅱ</button>
+      <div class="battle-brand">藍鳥太空新創</div>
+      <div class="money-box"><span id="money-value">1869</span><b>/6000</b>元</div>
+      <div class="speed-badge">SPEED<br><strong>UP</strong></div>
     </header>
 
-    <main class="world-map">
-      <div class="temporary-map">
-        <div class="map-cloud cloud-1"></div>
-        <div class="map-cloud cloud-2"></div>
-        <div class="map-cloud cloud-3"></div>
-
-        <div class="mountain mountain-1">▲</div>
-        <div class="mountain mountain-2">▲</div>
-
-        <div class="lake lake-1"></div>
-
-        <svg class="map-road" viewBox="0 0 1000 600" preserveAspectRatio="none">
-          <path
-            d="M 120 470 C 220 420, 240 350, 350 360 C 470 370, 500 470, 610 410 C 710 355, 700 230, 850 180"
-            fill="none" stroke="#eee2bd" stroke-width="9" stroke-linecap="round" stroke-dasharray="2 20" />
-          <path
-            d="M 120 470 C 220 420, 240 350, 350 360 C 470 370, 500 470, 610 410 C 710 355, 700 230, 850 180"
-            fill="none" stroke="#7d6b4c" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 20" />
-        </svg>
-
-        <div class="map-town town-1">🏠</div>
-        <div class="map-town town-2">🏡</div>
-        <div class="map-tree tree-1">🌲</div>
-        <div class="map-tree tree-2">🌲</div>
-        <div class="map-tree tree-3">🌳</div>
-        <div class="map-tree tree-4">🌳</div>
-
-        <button class="stage-node stage-1" data-stage="0">
-          <span class="stage-clear">NEW!</span>
-          <span class="stage-number">1</span>
-          <span class="stage-name">第一關</span>
-        </button>
-
-        <button class="stage-node stage-2 locked" data-stage="1">
-          <span class="stage-clear">LOCK</span>
-          <span class="stage-number">2</span>
-          <span class="stage-name">第二關</span>
-        </button>
-
-        <button class="stage-node stage-3 locked" data-stage="2">
-          <span class="stage-clear">LOCK</span>
-          <span class="stage-number">3</span>
-          <span class="stage-name">第三關</span>
-        </button>
-
-        <div class="player-cat">🐱</div>
-      </div>
-    </main>
-
-    <div class="stage-info" id="stage-info">
-      <div class="stage-info-title">第一關</div>
-      <div class="stage-info-line">敵方基地 <strong id="info-hp">100</strong></div>
-      <div class="stage-info-line">難度 <span id="info-difficulty">★</span></div>
+    <div class="battle-side-hp battle-side-hp--left">
+      <span id="my-hp-text">1200000 / 1200000</span>
+    </div>
+    <div class="battle-side-hp battle-side-hp--right">
+      <span id="enemy-hp-text">236000 / 236000</span>
     </div>
 
-    <button id="battle-start" class="battle-start">
-      <span>戰鬥開始!!</span>
-    </button>
-
-    <nav class="map-bottom">
-      <button class="bottom-btn" id="my-book-btn">
-        <span class="bottom-icon">🐱</span>
-        <span>我方圖鑑</span>
-      </button>
-      <button class="bottom-btn" id="enemy-book-btn">
-        <span class="bottom-icon">👾</span>
-        <span>敵人圖鑑</span>
-      </button>
-      <button class="bottom-btn" id="formation-btn">
-        <span class="bottom-icon">⚔️</span>
-        <span>編隊</span>
-      </button>
-      <div class="bottom-spacer"></div>
-      <div class="strategy-club">
-        <span class="club-icon">📖</span>
-        <span>攻略社</span>
+    <div class="base base--enemy">
+      <div class="enemy-base-graphic">
+        <div class="enemy-roof"></div>
+        <div class="enemy-cat-face">👾</div>
+        <div class="enemy-cannon"></div>
+        <div class="base-door"></div>
       </div>
-    </nav>
+    </div>
 
-  </section>
+    <div class="base base--me">
+      <div class="player-base-graphic">
+        <div class="cat-head">🐱</div>
+        <div class="cannon"></div>
+        <div class="base-body"></div>
+        <div class="base-door"></div>
+      </div>
+    </div>
 
-  <section id="battle-screen" class="battle-screen hidden">
+    <canvas id="battle-canvas" width="1600" height="760"></canvas>
 
-    <div class="battle-topbar">
+    <div class="battle-bottom">
+      <div class="unit-cards" id="unit-cards">
+        <button class="unit-card" data-unit="cat1" data-cost="150">
+          <span class="unit-image"><img src="assets/cat1.svg" alt=""></span>
+          <span class="unit-price">150元</span>
+          <span class="cooldown-mask"></span>
+        </button>
+        <button class="unit-card" data-unit="cat2" data-cost="300">
+          <span class="unit-image"><img src="assets/cat2.svg" alt=""></span>
+          <span class="unit-price">300元</span>
+          <span class="cooldown-mask"></span>
+        </button>
+        <button class="unit-card" data-unit="cat3" data-cost="540">
+          <span class="unit-image"><img src="assets/cat3.svg" alt=""></span>
+          <span class="unit-price">540元</span>
+          <span class="cooldown-mask"></span>
+        </button>
+        <button class="unit-card" data-unit="cat4" data-cost="690">
+          <span class="unit-image"><img src="assets/cat4.svg" alt=""></span>
+          <span class="unit-price">690元</span>
+          <span class="cooldown-mask"></span>
+        </button>
+        <button class="unit-card" data-unit="cat5" data-cost="950">
+          <span class="unit-image"><img src="assets/cat5.svg" alt=""></span>
+          <span class="unit-price">950元</span>
+          <span class="cooldown-mask"></span>
+        </button>
+      </div>
       <button id="battle-back" class="battle-back">← 關卡地圖</button>
-      <div id="battle-stage-title" class="battle-stage-title">第一關</div>
     </div>
 
-    <div class="hp-bars">
-      <div class="hp-block">
-        <span class="hp-label">我方基地</span>
-        <div class="hp-track"><div class="hp-fill hp-fill--me" id="hp-me"></div></div>
-      </div>
-      <div class="hp-block">
-        <span class="hp-label">敵方基地</span>
-        <div class="hp-track"><div class="hp-fill hp-fill--enemy" id="hp-enemy"></div></div>
-      </div>
-    </div>
-
-    <canvas id="battle-canvas" width="900" height="220"></canvas>
-
-    <div class="deploy-bar">
-      <div class="energy-track"><div class="energy-fill" id="energy-fill"></div></div>
-      <div class="deploy-buttons">
-        <button class="deploy-btn" id="deploy-basic" data-cost="10">
-          <span class="deploy-icon">🐱</span>
-          <span class="deploy-name">小貓兵</span>
-          <span class="deploy-cost">10</span>
-        </button>
-        <button class="deploy-btn" id="deploy-tank" data-cost="30">
-          <span class="deploy-icon">🐈</span>
-          <span class="deploy-name">重裝貓</span>
-          <span class="deploy-cost">30</span>
-        </button>
-      </div>
-    </div>
-
-    <div class="game-message" id="game-message"></div>
-
-  </section>
-
-  <div id="menu-overlay" class="menu-overlay hidden">
-    <div class="menu-panel">
-      <button id="menu-close" class="menu-close">×</button>
-      <h2 id="menu-title">我方圖鑑</h2>
-      <div id="menu-content" class="menu-content"></div>
+    <div id="game-message" class="game-message"></div>
+    <div id="pause-panel" class="pause-panel hidden">
+      <div class="pause-title">戰鬥暫停</div>
+      <button id="pause-resume">繼續戰鬥</button>
+      <button id="pause-exit">回到關卡</button>
     </div>
   </div>
+</section>
+
+<div id="menu-overlay" class="menu-overlay hidden">
+<div class="menu-panel"><button id="menu-close" class="menu-close">×</button>
+<h2 id="menu-title">我方圖鑑</h2><div id="menu-content" class="menu-content"></div>
+</div></div>
 
 </div>
-
 <script src="script.js"></script>
 <script src="cats-game.js"></script>
-
 </body>
 </html>
