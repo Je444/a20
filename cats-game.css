@@ -1,1198 +1,1360 @@
-/* =====================================================
-   貓咪攻城戰
-   關卡地圖版
-===================================================== */
+(function () {
 
-* {
-  box-sizing: border-box;
-}
+  /* =====================================================
+     基本元素
+  ===================================================== */
 
-.game-body {
-  margin: 0;
-  min-height: 100vh;
-  overflow: hidden;
-  background: #17120d;
-}
+  const mapScreen =
+    document.getElementById("map-screen");
 
+  const battleScreen =
+    document.getElementById("battle-screen");
 
-/* =====================================================
-   主容器
-===================================================== */
+  const battleStart =
+    document.getElementById("battle-start");
 
-.cats-game {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-  font-family: "Noto Sans TC", sans-serif;
-}
+  const battleBack =
+    document.getElementById("battle-back");
 
+  const battleStageTitle =
+    document.getElementById("battle-stage-title");
 
-/* =====================================================
-   地圖畫面
-===================================================== */
+  const stageInfo =
+    document.getElementById("stage-info");
 
-.map-screen {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: #b8935d;
-}
+  const infoHp =
+    document.getElementById("info-hp");
+
+  const infoDifficulty =
+    document.getElementById("info-difficulty");
+
+  const stageNodes =
+    document.querySelectorAll(".stage-node");
 
 
-/* =====================================================
-   上方標題
-===================================================== */
+  /* =====================================================
+     圖鑑
+  ===================================================== */
 
-.map-header {
-  position: absolute;
-  z-index: 30;
+  const menuOverlay =
+    document.getElementById("menu-overlay");
 
-  left: 0;
-  top: 0;
+  const menuClose =
+    document.getElementById("menu-close");
 
-  width: 100%;
-  height: 68px;
+  const menuTitle =
+    document.getElementById("menu-title");
 
-  display: flex;
-  align-items: center;
+  const menuContent =
+    document.getElementById("menu-content");
 
-  background:
-    linear-gradient(
-      to bottom,
-      #d59a58,
-      #99552f
+  const myBookBtn =
+    document.getElementById("my-book-btn");
+
+  const enemyBookBtn =
+    document.getElementById("enemy-book-btn");
+
+  const formationBtn =
+    document.getElementById("formation-btn");
+
+
+  /* =====================================================
+     關卡資料
+  ===================================================== */
+
+  const STAGES = [
+
+    {
+      name: "第一關",
+      enemyHp: 100,
+      spawnInterval: 2600,
+      enemySpeedMul: 1.0,
+      enemyDamage: 6,
+      difficulty: "★"
+    },
+
+    {
+      name: "第二關",
+      enemyHp: 160,
+      spawnInterval: 2100,
+      enemySpeedMul: 1.2,
+      enemyDamage: 8,
+      difficulty: "★★"
+    },
+
+    {
+      name: "第三關",
+      enemyHp: 230,
+      spawnInterval: 1700,
+      enemySpeedMul: 1.45,
+      enemyDamage: 10,
+      difficulty: "★★★"
+    }
+
+  ];
+
+
+  /* =====================================================
+     解鎖
+  ===================================================== */
+
+  let unlocked =
+    parseInt(
+      localStorage.getItem(
+        "catsGameUnlocked"
+      ) || "1",
+      10
     );
 
-  border-bottom: 5px solid #5c321f;
 
-  box-shadow:
-    0 4px 10px rgba(0,0,0,.35);
-}
+  let currentStage = 0;
 
 
-/* 返回 */
+  /* =====================================================
+     選關
+  ===================================================== */
 
-.map-back {
-  position: absolute;
-  left: 24px;
+  function updateStageNodes() {
 
-  color: #fff7df;
-  text-decoration: none;
+    stageNodes.forEach(
+      (node, index) => {
 
-  font-size: 17px;
-  font-weight: 900;
+        const isLocked =
+          index + 1 > unlocked;
 
-  text-shadow:
-    2px 2px 0 #392116;
-}
+        node.classList.toggle(
+          "locked",
+          isLocked
+        );
 
+        const clearText =
+          node.querySelector(
+            ".stage-clear"
+          );
 
-/* 標題 */
+        if (isLocked) {
 
-.map-title {
-  position: absolute;
+          clearText.textContent =
+            "LOCK";
 
-  left: 50%;
-  transform: translateX(-50%);
+        } else if (
+          index + 1 < unlocked
+        ) {
 
-  margin: 0;
+          clearText.textContent =
+            "CLEAR!";
 
-  color: #fff4d2;
+        } else {
 
-  font-size: clamp(28px, 4vw, 48px);
-  font-weight: 900;
+          clearText.textContent =
+            "NEW!";
 
-  letter-spacing: 3px;
+        }
 
-  text-shadow:
-    3px 3px 0 #3b2115,
-    -1px -1px 0 #fff1c8;
-}
-
-
-/* 右上 */
-
-.map-game-title {
-  position: absolute;
-  right: 28px;
-
-  color: #fff3cf;
-
-  font-weight: 900;
-  font-size: 19px;
-
-  text-shadow:
-    2px 2px 0 #432317;
-}
-
-
-/* =====================================================
-   地圖
-===================================================== */
-
-.world-map {
-  position: absolute;
-
-  left: 0;
-  right: 0;
-
-  top: 68px;
-  bottom: 82px;
-
-  overflow: hidden;
-}
-
-
-/* =====================================================
-   臨時地圖
-===================================================== */
-
-.temporary-map {
-  position: absolute;
-
-  inset: 0;
-
-  overflow: hidden;
-
-  background:
-    radial-gradient(
-      ellipse at 30% 30%,
-      rgba(255,255,255,.45),
-      transparent 40%
-    ),
-    radial-gradient(
-      ellipse at 75% 70%,
-      rgba(140,110,60,.2),
-      transparent 50%
-    ),
-    #e7d39b;
-
-  background-image:
-    radial-gradient(
-      circle at 10% 20%,
-      rgba(120,90,40,.08) 0 2px,
-      transparent 3px
-    ),
-    radial-gradient(
-      circle at 80% 40%,
-      rgba(120,90,40,.08) 0 2px,
-      transparent 3px
-    ),
-    linear-gradient(
-      135deg,
-      rgba(255,255,255,.2),
-      transparent
+      }
     );
 
-  background-size:
-    55px 55px,
-    70px 70px,
-    auto;
-}
+  }
 
 
-/* =====================================================
-   地圖道路
-===================================================== */
+  function selectStage(index) {
 
-.map-road {
-  position: absolute;
+    if (index + 1 > unlocked) {
 
-  width: 100%;
-  height: 100%;
+      playBeep(180, 0.08);
 
-  inset: 0;
+      return;
 
-  pointer-events: none;
-}
+    }
 
 
-/* =====================================================
-   地圖裝飾
-===================================================== */
+    currentStage = index;
 
-.map-cloud {
-  position: absolute;
-
-  width: 140px;
-  height: 55px;
-
-  background: rgba(255,255,255,.32);
-
-  border-radius: 50%;
-
-  filter: blur(1px);
-}
-
-.cloud-1 {
-  left: 8%;
-  top: 16%;
-}
-
-.cloud-2 {
-  left: 52%;
-  top: 28%;
-}
-
-.cloud-3 {
-  right: 5%;
-  top: 12%;
-}
+    const stage =
+      STAGES[currentStage];
 
 
-.mountain {
-  position: absolute;
-
-  color: rgba(100,75,40,.3);
-
-  font-size: 90px;
-}
-
-.mountain-1 {
-  left: 18%;
-  bottom: 15%;
-}
-
-.mountain-2 {
-  right: 22%;
-  top: 22%;
-}
+    stageInfo.querySelector(
+      ".stage-info-title"
+    ).textContent =
+      stage.name;
 
 
-.lake {
-  position: absolute;
-
-  width: 180px;
-  height: 100px;
-
-  background: rgba(80,140,160,.22);
-
-  border-radius: 50%;
-
-  transform: rotate(-15deg);
-}
-
-.lake-1 {
-  left: 43%;
-  bottom: 15%;
-}
+    infoHp.textContent =
+      stage.enemyHp;
 
 
-.map-town,
-.map-tree {
-  position: absolute;
-
-  font-size: 32px;
-
-  filter:
-    drop-shadow(2px 3px 1px rgba(0,0,0,.25));
-}
-
-.town-1 {
-  left: 18%;
-  top: 25%;
-}
-
-.town-2 {
-  right: 15%;
-  bottom: 25%;
-}
-
-.tree-1 {
-  left: 10%;
-  bottom: 25%;
-}
-
-.tree-2 {
-  left: 37%;
-  top: 18%;
-}
-
-.tree-3 {
-  right: 30%;
-  bottom: 15%;
-}
-
-.tree-4 {
-  right: 8%;
-  top: 35%;
-}
+    infoDifficulty.textContent =
+      stage.difficulty;
 
 
-/* =====================================================
-   玩家貓咪
-===================================================== */
-
-.player-cat {
-  position: absolute;
-
-  left: 10%;
-  bottom: 19%;
-
-  width: 55px;
-  height: 55px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  font-size: 35px;
-
-  background: #fffdf5;
-
-  border: 3px solid #4b3827;
-
-  border-radius: 50%;
-
-  box-shadow:
-    0 4px 0 #806b4d,
-    0 5px 10px rgba(0,0,0,.25);
-
-  z-index: 10;
-}
-
-
-/* =====================================================
-   關卡節點
-===================================================== */
-
-.stage-node {
-  position: absolute;
-
-  width: 115px;
-  height: 85px;
-
-  padding: 0;
-
-  border: 4px solid #4b3a28;
-
-  background:
-    linear-gradient(
-      to bottom,
-      #fff4bd,
-      #d8b55e
+    stageNodes.forEach(
+      node =>
+        node.classList.remove(
+          "selected"
+        )
     );
 
-  box-shadow:
-    0 5px 0 #73552e,
-    0 7px 12px rgba(0,0,0,.3);
 
-  cursor: pointer;
+    stageNodes[currentStage]
+      .classList.add("selected");
 
-  transform: translate(-50%, -50%);
-
-  transition:
-    transform .15s ease,
-    filter .15s ease;
-
-  z-index: 20;
-}
-
-.stage-node:hover:not(.locked) {
-  transform:
-    translate(-50%, -50%)
-    scale(1.08);
-
-  filter: brightness(1.08);
-}
-
-.stage-node.locked {
-  filter: grayscale(.7);
-  opacity: .72;
-  cursor: not-allowed;
-}
+  }
 
 
-/* 關卡位置 */
+  stageNodes.forEach(
+    (node) => {
 
-.stage-1 {
-  left: 35%;
-  top: 54%;
-}
+      node.addEventListener(
+        "click",
+        () => {
 
-.stage-2 {
-  left: 60%;
-  top: 67%;
-}
+          const index =
+            parseInt(
+              node.dataset.stage,
+              10
+            );
 
-.stage-3 {
-  left: 76%;
-  top: 38%;
-}
+          selectStage(index);
 
+        }
+      );
 
-/* 關卡數字 */
-
-.stage-number {
-  display: block;
-
-  font-family:
-    "Press Start 2P",
-    monospace;
-
-  font-size: 28px;
-
-  color: #fff;
-
-  text-shadow:
-    3px 3px 0 #402717;
-}
+    }
+  );
 
 
-/* 關卡名稱 */
+  /* =====================================================
+     開始戰鬥
+  ===================================================== */
 
-.stage-name {
-  display: block;
+  battleStart.addEventListener(
+    "click",
+    () => {
 
-  margin-top: 4px;
+      startBattleScreen();
 
-  color: #3d291b;
-
-  font-size: 14px;
-  font-weight: 900;
-}
-
-
-/* CLEAR */
-
-.stage-clear {
-  position: absolute;
-
-  left: 4px;
-  top: -18px;
-
-  color: #fff;
-
-  font-size: 13px;
-  font-weight: 900;
-
-  text-shadow:
-    2px 2px 0 #302015;
-}
+    }
+  );
 
 
-/* =====================================================
-   關卡資訊
-===================================================== */
+  function startBattleScreen() {
 
-.stage-info {
-  position: absolute;
-
-  right: 28px;
-  bottom: 105px;
-
-  width: 270px;
-
-  padding: 15px 20px;
-
-  background:
-    linear-gradient(
-      to bottom,
-      #fff5d5,
-      #d7b36c
+    mapScreen.classList.add(
+      "hidden"
     );
 
-  border: 4px solid #51331f;
-
-  box-shadow:
-    0 5px 0 #7a532b,
-    0 8px 15px rgba(0,0,0,.3);
-
-  z-index: 40;
-}
-
-
-.stage-info-title {
-  font-size: 23px;
-  font-weight: 900;
-
-  color: #3d2617;
-
-  margin-bottom: 8px;
-}
-
-
-.stage-info-line {
-  display: flex;
-  justify-content: space-between;
-
-  color: #503923;
-
-  font-size: 14px;
-
-  padding: 4px 0;
-}
-
-
-/* =====================================================
-   戰鬥開始
-===================================================== */
-
-.battle-start {
-  position: absolute;
-
-  right: 28px;
-  bottom: 22px;
-
-  z-index: 50;
-
-  width: 310px;
-  height: 72px;
-
-  border-radius: 22px;
-
-  border: 5px solid #b20d88;
-
-  background:
-    linear-gradient(
-      to bottom,
-      #ffe35c,
-      #efb400
+    battleScreen.classList.remove(
+      "hidden"
     );
 
-  box-shadow:
-    inset 0 3px 0 rgba(255,255,255,.55),
-    0 5px 0 #765016,
-    0 8px 15px rgba(0,0,0,.3);
+    battleStageTitle.textContent =
+      STAGES[currentStage].name;
 
-  color: #fff;
+    startStage();
 
-  font-size: 30px;
-  font-weight: 900;
-
-  text-shadow:
-    3px 3px 0 #3c2614;
-
-  cursor: pointer;
-
-  transition:
-    transform .12s ease,
-    filter .12s ease;
-}
-
-.battle-start:hover {
-  transform: scale(1.04);
-  filter: brightness(1.08);
-}
-
-.battle-start:active {
-  transform: translateY(4px);
-}
+  }
 
 
-/* =====================================================
-   底部功能列
-===================================================== */
+  /* =====================================================
+     回到地圖
+  ===================================================== */
 
-.map-bottom {
-  position: absolute;
+  battleBack.addEventListener(
+    "click",
+    () => {
 
-  z-index: 60;
+      if (rafId) {
 
-  left: 0;
-  right: 0;
-  bottom: 0;
+        cancelAnimationFrame(
+          rafId
+        );
 
-  height: 82px;
+        rafId = null;
 
-  display: flex;
-  align-items: center;
+      }
 
-  padding:
-    8px 20px;
+      state = null;
 
-  background:
-    linear-gradient(
-      to bottom,
-      #d39755,
-      #8d4c2d
+      battleScreen.classList.add(
+        "hidden"
+      );
+
+      mapScreen.classList.remove(
+        "hidden"
+      );
+
+      updateStageNodes();
+
+    }
+  );
+
+
+  /* =====================================================
+     圖鑑
+  ===================================================== */
+
+  function openMenu(
+    title,
+    cards
+  ) {
+
+    menuTitle.textContent =
+      title;
+
+    menuContent.innerHTML = "";
+
+    cards.forEach(
+      card => {
+
+        const div =
+          document.createElement(
+            "div"
+          );
+
+        div.className =
+          "book-card";
+
+        div.innerHTML = `
+          <span class="book-card-icon">
+            ${card.icon}
+          </span>
+
+          ${card.name}
+        `;
+
+        menuContent.appendChild(
+          div
+        );
+
+      }
     );
 
-  border-top: 5px solid #54301d;
 
-  box-shadow:
-    0 -5px 12px rgba(0,0,0,.3);
-}
-
-
-/* 底部按鈕 */
-
-.bottom-btn {
-  min-width: 125px;
-  height: 62px;
-
-  margin-right: 10px;
-
-  display: flex;
-  flex-direction: column;
-
-  align-items: center;
-  justify-content: center;
-
-  gap: 2px;
-
-  border: 3px solid #4b2d1d;
-
-  border-radius: 14px;
-
-  background:
-    linear-gradient(
-      to bottom,
-      #eee1bf,
-      #b69b68
+    menuOverlay.classList.remove(
+      "hidden"
     );
 
-  color: #352315;
-
-  font-weight: 900;
-
-  cursor: pointer;
-
-  box-shadow:
-    0 3px 0 #5c351e;
-}
-
-.bottom-btn:hover {
-  filter: brightness(1.1);
-  transform: translateY(-2px);
-}
-
-.bottom-icon {
-  font-size: 25px;
-}
+  }
 
 
-.bottom-spacer {
-  flex: 1;
-}
+  myBookBtn.addEventListener(
+    "click",
+    () => {
+
+      openMenu(
+        "我方圖鑑",
+        [
+          {
+            icon: "🐱",
+            name: "小貓兵"
+          },
+          {
+            icon: "🐈",
+            name: "重裝貓"
+          },
+          {
+            icon: "😺",
+            name: "貓咪戰士"
+          },
+          {
+            icon: "😸",
+            name: "快速貓"
+          }
+        ]
+      );
+
+    }
+  );
 
 
-/* 攻略社 */
+  enemyBookBtn.addEventListener(
+    "click",
+    () => {
 
-.strategy-club {
-  height: 62px;
+      openMenu(
+        "敵人圖鑑",
+        [
+          {
+            icon: "👾",
+            name: "小怪"
+          },
+          {
+            icon: "👹",
+            name: "重裝怪"
+          },
+          {
+            icon: "🐲",
+            name: "巨龍"
+          }
+        ]
+      );
 
-  min-width: 180px;
+    }
+  );
 
-  padding: 0 28px;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  formationBtn.addEventListener(
+    "click",
+    () => {
 
-  gap: 10px;
+      openMenu(
+        "編隊",
+        [
+          {
+            icon: "🐱",
+            name: "小貓兵"
+          },
+          {
+            icon: "🐈",
+            name: "重裝貓"
+          }
+        ]
+      );
 
-  background:
-    linear-gradient(
-      to bottom,
-      #fff0b8,
-      #e1a92d
+    }
+  );
+
+
+  menuClose.addEventListener(
+    "click",
+    () => {
+
+      menuOverlay.classList.add(
+        "hidden"
+      );
+
+    }
+  );
+
+
+  menuOverlay.addEventListener(
+    "click",
+    event => {
+
+      if (
+        event.target ===
+        menuOverlay
+      ) {
+
+        menuOverlay.classList.add(
+          "hidden"
+        );
+
+      }
+
+    }
+  );
+
+
+  /* =====================================================
+     以下是原本戰鬥系統
+  ===================================================== */
+
+  const canvas =
+    document.getElementById(
+      "battle-canvas"
     );
 
-  border: 4px solid #58331d;
-
-  border-radius: 18px;
-
-  color: #422715;
-
-  font-size: 22px;
-  font-weight: 900;
-
-  box-shadow:
-    0 4px 0 #633d1d;
-}
-
-.club-icon {
-  font-size: 27px;
-}
+  const ctx =
+    canvas.getContext("2d");
 
 
-/* =====================================================
-   戰鬥畫面
-===================================================== */
+  const CW =
+    canvas.width;
 
-.battle-screen {
-  position: absolute;
+  const CH =
+    canvas.height;
 
-  inset: 0;
-
-  z-index: 100;
-
-  padding: 20px;
-
-  overflow-y: auto;
-
-  background:
-    radial-gradient(
-      circle at 50% 0%,
-      #293147,
-      #11151f 70%
-    );
-}
+  const GROUND_Y =
+    CH - 40;
 
 
-.hidden {
-  display: none !important;
-}
-
-
-/* 戰鬥上方 */
-
-.battle-topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  max-width: 920px;
-
-  margin: 0 auto 16px;
-}
-
-
-.battle-back {
-  border: 1px solid #5d687c;
-
-  background: #202637;
-
-  color: #fff;
-
-  border-radius: 10px;
-
-  padding: 10px 18px;
-
-  cursor: pointer;
-}
-
-
-.battle-stage-title {
-  color: #fff;
-
-  font-size: 24px;
-  font-weight: 900;
-}
-
-
-/* HP */
-
-.hp-bars {
-  display: flex;
-
-  gap: 20px;
-
-  max-width: 920px;
-
-  margin: 0 auto 10px;
-}
-
-
-.hp-block {
-  flex: 1;
-}
-
-
-.hp-label {
-  font-size: 13px;
-  color: #aeb7c8;
-}
-
-
-.hp-track {
-  height: 12px;
-
-  background: #202637;
-
-  border-radius: 999px;
-
-  overflow: hidden;
-
-  margin-top: 4px;
-
-  border: 1px solid #3c4557;
-}
-
-
-.hp-fill {
-  height: 100%;
-
-  width: 100%;
-
-  transition:
-    width .2s ease;
-}
-
-
-.hp-fill--me {
-  background: #66dfbf;
-}
-
-
-.hp-fill--enemy {
-  background: #ff775d;
-}
-
-
-/* 戰鬥畫布 */
-
-#battle-canvas {
-  display: block;
-
-  width: 100%;
-  max-width: 900px;
-
-  height: 220px;
-
-  margin: 0 auto;
-
-  background:
-    linear-gradient(
-      to bottom,
-      #202638,
-      #11151f
+  const hpMeEl =
+    document.getElementById(
+      "hp-me"
     );
 
-  border: 1px solid #3d4658;
-
-  border-radius: 12px;
-}
-
-
-/* 能量 */
-
-.deploy-bar {
-  width: 100%;
-  max-width: 900px;
-
-  margin: 16px auto 0;
-}
-
-
-.energy-track {
-  height: 8px;
-
-  background: #202637;
-
-  border: 1px solid #3d4658;
-
-  border-radius: 999px;
-
-  overflow: hidden;
-
-  margin-bottom: 12px;
-}
-
-
-.energy-fill {
-  height: 100%;
-
-  width: 0%;
-
-  background:
-    linear-gradient(
-      90deg,
-      #66dfbf,
-      #ff775d
-    );
-}
-
-
-/* 出兵 */
-
-.deploy-buttons {
-  display: flex;
-  gap: 12px;
-}
-
-
-.deploy-btn {
-  flex: 1;
-
-  display: flex;
-  flex-direction: column;
-
-  align-items: center;
-
-  gap: 4px;
-
-  background: #202637;
-
-  border: 1px solid #3d4658;
-
-  border-radius: 12px;
-
-  padding: 14px;
-
-  cursor: pointer;
-
-  color: #fff;
-}
-
-
-.deploy-btn:hover {
-  border-color: #ff775d;
-}
-
-
-.deploy-icon {
-  font-size: 28px;
-}
-
-
-.deploy-name {
-  font-size: 14px;
-  font-weight: 700;
-}
-
-
-.deploy-cost {
-  font-size: 12px;
-  color: #ff967e;
-}
-
-
-/* 訊息 */
-
-.game-message {
-  text-align: center;
-
-  margin-top: 16px;
-
-  min-height: 35px;
-
-  color: #fff;
-
-  font-size: 22px;
-  font-weight: 900;
-}
-
-
-.game-message.win {
-  color: #66dfbf;
-}
-
-
-.game-message.lose {
-  color: #ff775d;
-}
-
-
-/* =====================================================
-   圖鑑 / 編隊視窗
-===================================================== */
-
-.menu-overlay {
-  position: fixed;
-
-  inset: 0;
-
-  z-index: 500;
-
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
-  background:
-    rgba(0,0,0,.65);
-}
-
-
-.menu-panel {
-  position: relative;
-
-  width: min(600px, 90vw);
-  max-height: 80vh;
-
-  overflow-y: auto;
-
-  padding: 30px;
-
-  background:
-    linear-gradient(
-      to bottom,
-      #fff2c8,
-      #d3ad6c
+  const hpEnemyEl =
+    document.getElementById(
+      "hp-enemy"
     );
 
-  border: 5px solid #4b2c1b;
-
-  border-radius: 18px;
-
-  box-shadow:
-    0 10px 30px rgba(0,0,0,.5);
-}
-
-
-.menu-panel h2 {
-  margin-top: 0;
-
-  color: #402717;
-
-  font-size: 28px;
-}
-
-
-.menu-close {
-  position: absolute;
-
-  right: 12px;
-  top: 10px;
-
-  width: 40px;
-  height: 40px;
-
-  border: 0;
-
-  background: transparent;
-
-  color: #422819;
-
-  font-size: 35px;
-
-  cursor: pointer;
-}
-
-
-.menu-content {
-  display: grid;
-
-  grid-template-columns:
-    repeat(
-      auto-fit,
-      minmax(130px, 1fr)
+  const energyFillEl =
+    document.getElementById(
+      "energy-fill"
     );
 
-  gap: 12px;
-}
+  const messageEl =
+    document.getElementById(
+      "game-message"
+    );
 
 
-.book-card {
-  padding: 18px 10px;
+  const deployBasicBtn =
+    document.getElementById(
+      "deploy-basic"
+    );
 
-  text-align: center;
-
-  background:
-    rgba(255,255,255,.38);
-
-  border: 2px solid #80633e;
-
-  border-radius: 12px;
-
-  color: #422819;
-
-  font-weight: 900;
-}
+  const deployTankBtn =
+    document.getElementById(
+      "deploy-tank"
+    );
 
 
-.book-card-icon {
-  display: block;
+  /* =====================================================
+     單位
+  ===================================================== */
 
-  font-size: 40px;
+  const UNIT_TYPES = {
 
-  margin-bottom: 8px;
-}
+    basic: {
+      cost: 10,
+      hp: 30,
+      damage: 8,
+      speed: 1.0,
+      color: "#EDEDF2",
+      radius: 14
+    },
+
+    tank: {
+      cost: 30,
+      hp: 90,
+      damage: 14,
+      speed: 0.6,
+      color: "#FF8A5B",
+      radius: 20
+    }
+
+  };
 
 
-/* =====================================================
-   手機
-===================================================== */
+  const MOVE_SPEED = 90;
 
-@media (max-width: 700px) {
 
-  .map-header {
-    height: 56px;
+  let state = null;
+
+  let rafId = null;
+
+  let lastTime = 0;
+
+  let spawnTimer = 0;
+
+
+  /* =====================================================
+     音效
+  ===================================================== */
+
+  function playBeep(
+    freq,
+    duration
+  ) {
+
+    try {
+
+      const volume =
+        (
+          parseInt(
+            localStorage.getItem(
+              "clubGameVolume"
+            ) || "60",
+            10
+          )
+        ) / 100;
+
+
+      if (volume <= 0)
+        return;
+
+
+      const AudioCtx =
+        window.AudioContext ||
+        window.webkitAudioContext;
+
+
+      const actx =
+        new AudioCtx();
+
+
+      const osc =
+        actx.createOscillator();
+
+
+      const gain =
+        actx.createGain();
+
+
+      osc.frequency.value =
+        freq;
+
+      osc.type =
+        "square";
+
+
+      gain.gain.value =
+        volume * 0.15;
+
+
+      osc.connect(gain);
+
+      gain.connect(
+        actx.destination
+      );
+
+
+      osc.start();
+
+      osc.stop(
+        actx.currentTime +
+        duration
+      );
+
+
+      setTimeout(
+        () => actx.close(),
+        duration * 1000 + 100
+      );
+
+    } catch (e) {
+
+      // 音效錯誤不影響遊戲
+
+    }
+
   }
 
-  .map-title {
-    font-size: 25px;
+
+  /* =====================================================
+     開始關卡
+  ===================================================== */
+
+  function startStage() {
+
+    const cfg =
+      STAGES[currentStage];
+
+
+    state = {
+
+      running: true,
+
+      energy: 0,
+
+      maxEnergy: 100,
+
+      energyRate: 12,
+
+      myHp: 100,
+
+      myMaxHp: 100,
+
+      enemyHp:
+        cfg.enemyHp,
+
+      enemyMaxHp:
+        cfg.enemyHp,
+
+      myUnits: [],
+
+      enemyUnits: []
+
+    };
+
+
+    spawnTimer = 0;
+
+
+    messageEl.textContent =
+      "";
+
+    messageEl.className =
+      "game-message";
+
+
+    updateBars();
+
+
+    if (rafId) {
+
+      cancelAnimationFrame(
+        rafId
+      );
+
+    }
+
+
+    lastTime =
+      performance.now();
+
+
+    rafId =
+      requestAnimationFrame(
+        loop
+      );
+
   }
 
-  .map-game-title {
-    display: none;
+
+  /* =====================================================
+     更新血條
+  ===================================================== */
+
+  function updateBars() {
+
+    if (!state)
+      return;
+
+
+    hpMeEl.style.width =
+      Math.max(
+        0,
+        (
+          state.myHp /
+          state.myMaxHp
+        ) * 100
+      ) + "%";
+
+
+    hpEnemyEl.style.width =
+      Math.max(
+        0,
+        (
+          state.enemyHp /
+          state.enemyMaxHp
+        ) * 100
+      ) + "%";
+
+
+    energyFillEl.style.width =
+      Math.min(
+        100,
+        (
+          state.energy /
+          state.maxEnergy
+        ) * 100
+      ) + "%";
+
   }
 
-  .map-back {
-    left: 10px;
-    font-size: 13px;
+
+  /* =====================================================
+     生成單位
+  ===================================================== */
+
+  function spawnUnit(
+    side,
+    type
+  ) {
+
+    const t =
+      UNIT_TYPES[type];
+
+
+    const unit = {
+
+      side,
+
+      type,
+
+      x:
+        side === "me"
+          ? 40
+          : CW - 40,
+
+      hp: t.hp,
+
+      maxHp: t.hp,
+
+      damage: t.damage,
+
+      speed: t.speed,
+
+      color: t.color,
+
+      radius: t.radius
+
+    };
+
+
+    if (side === "me") {
+
+      state.myUnits.push(
+        unit
+      );
+
+    } else {
+
+      state.enemyUnits.push(
+        unit
+      );
+
+    }
+
   }
 
-  .world-map {
-    top: 56px;
-    bottom: 76px;
+
+  /* =====================================================
+     出兵
+  ===================================================== */
+
+  function deploy(type) {
+
+    if (
+      !state ||
+      !state.running
+    )
+      return;
+
+
+    const cost =
+      UNIT_TYPES[type].cost;
+
+
+    if (
+      state.energy <
+      cost
+    )
+      return;
+
+
+    state.energy -=
+      cost;
+
+
+    spawnUnit(
+      "me",
+      type
+    );
+
+
+    playBeep(
+      520,
+      0.08
+    );
+
   }
 
-  .stage-node {
-    width: 82px;
-    height: 65px;
+
+  deployBasicBtn.addEventListener(
+    "click",
+    () =>
+      deploy("basic")
+  );
+
+
+  deployTankBtn.addEventListener(
+    "click",
+    () =>
+      deploy("tank")
+  );
+
+
+  /* =====================================================
+     尋找敵人
+  ===================================================== */
+
+  function findTarget(
+    unit,
+    enemies
+  ) {
+
+    let nearest = null;
+
+    let nearestDist =
+      Infinity;
+
+
+    enemies.forEach(
+      enemy => {
+
+        const d =
+          Math.abs(
+            enemy.x -
+            unit.x
+          );
+
+
+        if (
+          d <
+          nearestDist
+        ) {
+
+          nearestDist = d;
+
+          nearest = enemy;
+
+        }
+
+      }
+    );
+
+
+    return {
+      target: nearest,
+      dist: nearestDist
+    };
+
   }
 
-  .stage-number {
-    font-size: 20px;
+
+  /* =====================================================
+     主循環
+  ===================================================== */
+
+  function loop(now) {
+
+    if (!state)
+      return;
+
+
+    const dt =
+      Math.min(
+        50,
+        now - lastTime
+      ) / 1000;
+
+
+    lastTime =
+      now;
+
+
+    const cfg =
+      STAGES[currentStage];
+
+
+    if (state.running) {
+
+      /* 能量 */
+
+      state.energy =
+        Math.min(
+          state.maxEnergy,
+
+          state.energy +
+          state.energyRate *
+          dt
+        );
+
+
+      /* 敵人生成 */
+
+      spawnTimer +=
+        dt * 1000;
+
+
+      if (
+        spawnTimer >=
+        cfg.spawnInterval
+      ) {
+
+        spawnTimer = 0;
+
+
+        spawnUnit(
+          "enemy",
+          Math.random() < 0.25
+            ? "tank"
+            : "basic"
+        );
+
+      }
+
+
+      /* 戰鬥 */
+
+      const ATTACK_RANGE =
+        26;
+
+
+      state.myUnits.forEach(
+        u => {
+
+          const {
+            target,
+            dist
+          } =
+            findTarget(
+              u,
+              state.enemyUnits
+            );
+
+
+          if (
+            target &&
+            dist <
+              ATTACK_RANGE
+          ) {
+
+            target.hp -=
+              u.damage *
+              dt *
+              2;
+
+          } else {
+
+            u.x +=
+              u.speed *
+              MOVE_SPEED *
+              dt;
+
+
+            if (
+              u.x >=
+              CW - 30
+            ) {
+
+              state.enemyHp -=
+                u.damage *
+                dt *
+                1.5;
+
+            }
+
+          }
+
+        }
+      );
+
+
+      state.enemyUnits.forEach(
+        u => {
+
+          const {
+            target,
+            dist
+          } =
+            findTarget(
+              u,
+              state.myUnits
+            );
+
+
+          if (
+            target &&
+            dist <
+              ATTACK_RANGE
+          ) {
+
+            target.hp -=
+              u.damage *
+              dt *
+              2;
+
+          } else {
+
+            u.x -=
+              u.speed *
+              MOVE_SPEED *
+              cfg.enemySpeedMul *
+              dt;
+
+
+            if (
+              u.x <= 30
+            ) {
+
+              state.myHp -=
+                cfg.enemyDamage *
+                dt;
+
+            }
+
+          }
+
+        }
+      );
+
+
+      state.myUnits =
+        state.myUnits.filter(
+          u => u.hp > 0
+        );
+
+
+      state.enemyUnits =
+        state.enemyUnits.filter(
+          u => u.hp > 0
+        );
+
+
+      updateBars();
+
+
+      if (
+        state.enemyHp <= 0
+      ) {
+
+        endStage(true);
+
+      } else if (
+        state.myHp <= 0
+      ) {
+
+        endStage(false);
+
+      }
+
+    }
+
+
+    draw();
+
+
+    rafId =
+      requestAnimationFrame(
+        loop
+      );
+
   }
 
-  .stage-name {
-    font-size: 11px;
+
+  /* =====================================================
+     關卡結束
+  ===================================================== */
+
+  function endStage(
+    won
+  ) {
+
+    state.running =
+      false;
+
+
+    if (won) {
+
+      messageEl.textContent =
+        "🎉 過關了！";
+
+
+      messageEl.className =
+        "game-message win";
+
+
+      playBeep(
+        880,
+        0.25
+      );
+
+
+      if (
+        currentStage + 2 >
+        unlocked
+      ) {
+
+        unlocked =
+          currentStage + 2;
+
+
+        if (
+          unlocked >
+          STAGES.length
+        ) {
+
+          unlocked =
+            STAGES.length;
+
+        }
+
+
+        localStorage.setItem(
+          "catsGameUnlocked",
+          String(unlocked)
+        );
+
+      }
+
+    } else {
+
+      messageEl.textContent =
+        "基地被攻陷了，再試一次";
+
+
+      messageEl.className =
+        "game-message lose";
+
+
+      playBeep(
+        160,
+        0.3
+      );
+
+    }
+
   }
 
-  .stage-info {
-    right: 10px;
-    bottom: 90px;
 
-    width: 190px;
+  /* =====================================================
+     畫單位
+  ===================================================== */
 
-    padding: 10px;
+  function drawUnit(u) {
+
+    ctx.beginPath();
+
+
+    ctx.arc(
+      u.x,
+      GROUND_Y,
+      u.radius,
+      0,
+      Math.PI * 2
+    );
+
+
+    ctx.fillStyle =
+      u.color;
+
+
+    ctx.fill();
+
+
+    ctx.font =
+      "16px sans-serif";
+
+
+    ctx.textAlign =
+      "center";
+
+
+    ctx.fillText(
+      u.side === "me"
+        ? "🐱"
+        : "👾",
+      u.x,
+      GROUND_Y + 5
+    );
+
+
+    /* 血條 */
+
+    const w =
+      u.radius * 2;
+
+
+    const pct =
+      Math.max(
+        0,
+        u.hp /
+        u.maxHp
+      );
+
+
+    ctx.fillStyle =
+      "rgba(0,0,0,.4)";
+
+
+    ctx.fillRect(
+      u.x - w / 2,
+      GROUND_Y -
+        u.radius -
+        10,
+      w,
+      4
+    );
+
+
+    ctx.fillStyle =
+      u.side === "me"
+        ? "#6FE7DD"
+        : "#FF8A5B";
+
+
+    ctx.fillRect(
+      u.x - w / 2,
+      GROUND_Y -
+        u.radius -
+        10,
+      w * pct,
+      4
+    );
+
   }
 
-  .stage-info-title {
-    font-size: 17px;
+
+  /* =====================================================
+     畫面
+  ===================================================== */
+
+  function draw() {
+
+    ctx.clearRect(
+      0,
+      0,
+      CW,
+      CH
+    );
+
+
+    /* 地面 */
+
+    ctx.strokeStyle =
+      "rgba(255,255,255,.08)";
+
+
+    ctx.beginPath();
+
+
+    ctx.moveTo(
+      0,
+      GROUND_Y + 20
+    );
+
+
+    ctx.lineTo(
+      CW,
+      GROUND_Y + 20
+    );
+
+
+    ctx.stroke();
+
+
+    /* 基地 */
+
+    ctx.font =
+      "26px sans-serif";
+
+
+    ctx.textAlign =
+      "center";
+
+
+    ctx.fillText(
+      "🏠",
+      20,
+      GROUND_Y + 8
+    );
+
+
+    ctx.fillText(
+      "🏰",
+      CW - 20,
+      GROUND_Y + 8
+    );
+
+
+    if (!state)
+      return;
+
+
+    state.myUnits.forEach(
+      drawUnit
+    );
+
+
+    state.enemyUnits.forEach(
+      drawUnit
+    );
+
   }
 
-  .stage-info-line {
-    font-size: 11px;
-  }
 
-  .battle-start {
-    right: 10px;
-    bottom: 10px;
+  /* =====================================================
+     初始化
+  ===================================================== */
 
-    width: 190px;
-    height: 60px;
+  updateStageNodes();
 
-    font-size: 21px;
-  }
+  selectStage(0);
 
-  .map-bottom {
-    height: 76px;
-
-    padding: 5px 7px;
-  }
-
-  .bottom-btn {
-    min-width: 75px;
-    height: 60px;
-
-    margin-right: 5px;
-
-    font-size: 11px;
-  }
-
-  .bottom-icon {
-    font-size: 21px;
-  }
-
-  .strategy-club {
-    min-width: 80px;
-
-    padding: 0 8px;
-
-    height: 60px;
-
-    font-size: 14px;
-  }
-
-  .club-icon {
-    font-size: 20px;
-  }
-
-}
+})();
