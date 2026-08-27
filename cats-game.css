@@ -351,6 +351,8 @@
     0 5px 10px rgba(0,0,0,.25);
 
   z-index: 10;
+
+  transition: left .35s ease, top .35s ease;
 }
 
 
@@ -402,6 +404,14 @@
   filter: grayscale(.7);
   opacity: .72;
   cursor: not-allowed;
+}
+
+.stage-node.selected {
+  border-color: #b20d88;
+  box-shadow:
+    0 0 0 4px rgba(178, 13, 136, .35),
+    0 5px 0 #73552e,
+    0 7px 12px rgba(0,0,0,.3);
 }
 
 
@@ -481,7 +491,7 @@
   position: absolute;
 
   right: 28px;
-  bottom: 105px;
+  bottom: 186px;
 
   width: 270px;
 
@@ -534,7 +544,7 @@
   position: absolute;
 
   right: 28px;
-  bottom: 22px;
+  bottom: 104px;
 
   z-index: 50;
 
@@ -1137,7 +1147,7 @@
 
   .stage-info {
     right: 10px;
-    bottom: 90px;
+    bottom: 156px;
 
     width: 190px;
 
@@ -1154,7 +1164,7 @@
 
   .battle-start {
     right: 10px;
-    bottom: 10px;
+    bottom: 86px;
 
     width: 190px;
     height: 60px;
