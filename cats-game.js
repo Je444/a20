@@ -52,7 +52,6 @@ const infoHp=document.getElementById("info-hp");
 const infoDifficulty=document.getElementById("info-difficulty");
 const battleStartBtn=document.getElementById("battle-start");
 const battleBackBtn=document.getElementById("battle-back");
-const battleStageTitle=document.getElementById("battle-stage-title");
 const playerCat=document.querySelector(".player-cat");
 const worldMap=document.querySelector(".world-map");
 const canvas=document.getElementById("battle-canvas");
@@ -131,7 +130,6 @@ stageNodes.forEach((node,i)=>node.addEventListener("click",()=>selectStage(i)));
 battleStartBtn.addEventListener("click",()=>{
   mapScreen.classList.add("hidden");
   battleScreen.classList.remove("hidden");
-  battleStageTitle.textContent=STAGES[selectedStage].name;
   startBattle(selectedStage);
 });
 
