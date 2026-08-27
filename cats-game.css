@@ -1,646 +1,807 @@
-/* =========================================================
-   基本
-========================================================= */
+/* =====================================================
+   貓咪攻城戰
+   關卡地圖版
+===================================================== */
+
+* {
+  box-sizing: border-box;
+}
 
 .game-body {
+  margin: 0;
   min-height: 100vh;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 30px 16px;
+  overflow: hidden;
+  background: #17120d;
 }
 
 
-/* =========================================================
-   主框架
-========================================================= */
+/* =====================================================
+   主容器
+===================================================== */
 
-.game-wrap {
+.cats-game {
   position: relative;
-  z-index: 1;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  font-family: "Noto Sans TC", sans-serif;
+}
 
+
+/* =====================================================
+   地圖畫面
+===================================================== */
+
+.map-screen {
+  position: relative;
   width: 100%;
-  max-width: 1180px;
+  height: 100%;
+  overflow: hidden;
+  background: #b8935d;
 }
 
 
-/* =========================================================
+/* =====================================================
    上方標題
-========================================================= */
+===================================================== */
 
-.game-header {
-  position: relative;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  min-height: 130px;
-
-  margin-bottom: 18px;
-}
-
-.game-header .hub-back {
+.map-header {
   position: absolute;
+  z-index: 30;
 
   left: 0;
-  top: 10px;
-}
-
-.game-title-area {
-  text-align: center;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.game-title-area h1 {
-  margin: 0;
-
-  font-size: 2rem;
-
-  font-weight: 900;
-}
-
-.game-logo {
-  margin-top: 10px;
-
-  width: 65px;
-  height: 65px;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  font-size: 42px;
-
-  border-radius: 18px;
-
-  background: var(--panel);
-
-  border: 1px solid var(--panel-border);
-}
-
-
-/* =========================================================
-   主體左右布局
-========================================================= */
-
-.game-layout {
-  display: grid;
-
-  grid-template-columns:
-    minmax(0, 1fr)
-    250px;
-
-  gap: 18px;
-
-  align-items: start;
-}
-
-
-/* =========================================================
-   左邊遊戲
-========================================================= */
-
-.game-main {
-  min-width: 0;
-}
-
-.game-screen {
-  display: none;
-}
-
-.game-screen.active {
-  display: block;
-}
-
-
-/* =========================================================
-   標題
-========================================================= */
-
-.screen-title {
-  text-align: center;
-
-  margin: 0 0 15px;
-
-  font-size: 1.5rem;
-
-  font-weight: 900;
-}
-
-
-/* =========================================================
-   地圖
-========================================================= */
-
-.world-map {
-  position: relative;
+  top: 0;
 
   width: 100%;
+  height: 68px;
 
-  height: 500px;
-
-  overflow: hidden;
-
-  border-radius: var(--radius);
-
-  border: 1px solid var(--panel-border);
+  display: flex;
+  align-items: center;
 
   background:
     linear-gradient(
-      180deg,
-      #8ecdf0 0%,
-      #c8e9a5 48%,
-      #79b65b 49%,
-      #5b9944 100%
+      to bottom,
+      #d59a58,
+      #99552f
     );
+
+  border-bottom: 5px solid #5c321f;
+
+  box-shadow:
+    0 4px 10px rgba(0,0,0,.35);
 }
 
 
-/* =========================================================
+/* 返回 */
+
+.map-back {
+  position: absolute;
+  left: 24px;
+
+  color: #fff7df;
+  text-decoration: none;
+
+  font-size: 17px;
+  font-weight: 900;
+
+  text-shadow:
+    2px 2px 0 #392116;
+}
+
+
+/* 標題 */
+
+.map-title {
+  position: absolute;
+
+  left: 50%;
+  transform: translateX(-50%);
+
+  margin: 0;
+
+  color: #fff4d2;
+
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 900;
+
+  letter-spacing: 3px;
+
+  text-shadow:
+    3px 3px 0 #3b2115,
+    -1px -1px 0 #fff1c8;
+}
+
+
+/* 右上 */
+
+.map-game-title {
+  position: absolute;
+  right: 28px;
+
+  color: #fff3cf;
+
+  font-weight: 900;
+  font-size: 19px;
+
+  text-shadow:
+    2px 2px 0 #432317;
+}
+
+
+/* =====================================================
+   地圖
+===================================================== */
+
+.world-map {
+  position: absolute;
+
+  left: 0;
+  right: 0;
+
+  top: 68px;
+  bottom: 82px;
+
+  overflow: hidden;
+}
+
+
+/* =====================================================
+   臨時地圖
+===================================================== */
+
+.temporary-map {
+  position: absolute;
+
+  inset: 0;
+
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      ellipse at 30% 30%,
+      rgba(255,255,255,.45),
+      transparent 40%
+    ),
+    radial-gradient(
+      ellipse at 75% 70%,
+      rgba(140,110,60,.2),
+      transparent 50%
+    ),
+    #e7d39b;
+
+  background-image:
+    radial-gradient(
+      circle at 10% 20%,
+      rgba(120,90,40,.08) 0 2px,
+      transparent 3px
+    ),
+    radial-gradient(
+      circle at 80% 40%,
+      rgba(120,90,40,.08) 0 2px,
+      transparent 3px
+    ),
+    linear-gradient(
+      135deg,
+      rgba(255,255,255,.2),
+      transparent
+    );
+
+  background-size:
+    55px 55px,
+    70px 70px,
+    auto;
+}
+
+
+/* =====================================================
    地圖道路
-========================================================= */
+===================================================== */
 
 .map-road {
   position: absolute;
 
-  z-index: 2;
+  width: 100%;
+  height: 100%;
 
-  height: 55px;
+  inset: 0;
 
-  border-radius: 999px;
-
-  background:
-    #d9ba79;
-
-  border: 5px solid #ad8950;
-
-  transform-origin: center;
+  pointer-events: none;
 }
 
-.road-1 {
-  width: 38%;
 
-  left: 10%;
-  top: 60%;
+/* =====================================================
+   地圖裝飾
+===================================================== */
+
+.map-cloud {
+  position: absolute;
+
+  width: 140px;
+  height: 55px;
+
+  background: rgba(255,255,255,.32);
+
+  border-radius: 50%;
+
+  filter: blur(1px);
+}
+
+.cloud-1 {
+  left: 8%;
+  top: 16%;
+}
+
+.cloud-2 {
+  left: 52%;
+  top: 28%;
+}
+
+.cloud-3 {
+  right: 5%;
+  top: 12%;
+}
+
+
+.mountain {
+  position: absolute;
+
+  color: rgba(100,75,40,.3);
+
+  font-size: 90px;
+}
+
+.mountain-1 {
+  left: 18%;
+  bottom: 15%;
+}
+
+.mountain-2 {
+  right: 22%;
+  top: 22%;
+}
+
+
+.lake {
+  position: absolute;
+
+  width: 180px;
+  height: 100px;
+
+  background: rgba(80,140,160,.22);
+
+  border-radius: 50%;
 
   transform: rotate(-15deg);
 }
 
-.road-2 {
-  width: 45%;
-
-  left: 35%;
-  top: 47%;
-
-  transform: rotate(12deg);
-}
-
-.road-3 {
-  width: 35%;
-
-  right: 7%;
-  top: 35%;
-
-  transform: rotate(-18deg);
+.lake-1 {
+  left: 43%;
+  bottom: 15%;
 }
 
 
-/* =========================================================
-   地圖裝飾
-========================================================= */
-
-.map-cloud,
-.map-mountain {
+.map-town,
+.map-tree {
   position: absolute;
 
-  z-index: 1;
+  font-size: 32px;
 
-  user-select: none;
+  filter:
+    drop-shadow(2px 3px 1px rgba(0,0,0,.25));
 }
 
-.cloud-1 {
-  top: 45px;
-  left: 8%;
-
-  font-size: 45px;
+.town-1 {
+  left: 18%;
+  top: 25%;
 }
 
-.cloud-2 {
-  top: 85px;
-  right: 10%;
+.town-2 {
+  right: 15%;
+  bottom: 25%;
+}
+
+.tree-1 {
+  left: 10%;
+  bottom: 25%;
+}
+
+.tree-2 {
+  left: 37%;
+  top: 18%;
+}
+
+.tree-3 {
+  right: 30%;
+  bottom: 15%;
+}
+
+.tree-4 {
+  right: 8%;
+  top: 35%;
+}
+
+
+/* =====================================================
+   玩家貓咪
+===================================================== */
+
+.player-cat {
+  position: absolute;
+
+  left: 10%;
+  bottom: 19%;
+
+  width: 55px;
+  height: 55px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   font-size: 35px;
-}
 
-.mountain-1 {
-  bottom: 65px;
-  left: 3%;
+  background: #fffdf5;
 
-  font-size: 50px;
-}
-
-.mountain-2 {
-  bottom: 80px;
-  right: 3%;
-
-  font-size: 44px;
-}
-
-
-/* =========================================================
-   關卡
-========================================================= */
-
-.map-stage {
-  position: absolute;
-
-  z-index: 5;
-
-  width: 76px;
-  height: 76px;
+  border: 3px solid #4b3827;
 
   border-radius: 50%;
 
+  box-shadow:
+    0 4px 0 #806b4d,
+    0 5px 10px rgba(0,0,0,.25);
+
+  z-index: 10;
+}
+
+
+/* =====================================================
+   關卡節點
+===================================================== */
+
+.stage-node {
+  position: absolute;
+
+  width: 115px;
+  height: 85px;
+
+  padding: 0;
+
+  border: 4px solid #4b3a28;
+
   background:
-    radial-gradient(
-      circle at 35% 30%,
-      #fff8ce,
-      #f4c865
+    linear-gradient(
+      to bottom,
+      #fff4bd,
+      #d8b55e
     );
 
-  border: 4px solid #65422f;
-
-  color: #3e291d;
-
-  font-size: 1.5rem;
-
-  font-weight: 900;
-
   box-shadow:
-    0 5px 0 #714d32,
-    0 8px 12px rgba(0,0,0,0.2);
+    0 5px 0 #73552e,
+    0 7px 12px rgba(0,0,0,.3);
 
   cursor: pointer;
 
+  transform: translate(-50%, -50%);
+
   transition:
-    transform 0.15s,
-    filter 0.15s;
+    transform .15s ease,
+    filter .15s ease;
+
+  z-index: 20;
 }
 
-.map-stage:hover {
-  transform: scale(1.1);
+.stage-node:hover:not(.locked) {
+  transform:
+    translate(-50%, -50%)
+    scale(1.08);
+
+  filter: brightness(1.08);
 }
 
-.map-stage:active {
-  transform: scale(0.96);
-}
-
-.map-stage.unlocked {
-  box-shadow:
-    0 5px 0 #714d32,
-    0 8px 12px rgba(0,0,0,0.2);
-}
-
-.map-stage.locked {
-  filter: grayscale(1);
-
-  opacity: 0.45;
-
+.stage-node.locked {
+  filter: grayscale(.7);
+  opacity: .72;
   cursor: not-allowed;
-}
-
-.map-stage span {
-  pointer-events: none;
 }
 
 
 /* 關卡位置 */
 
 .stage-1 {
-  left: 14%;
-  top: 58%;
+  left: 35%;
+  top: 54%;
 }
 
 .stage-2 {
-  left: 45%;
-  top: 40%;
+  left: 60%;
+  top: 67%;
 }
 
 .stage-3 {
-  right: 13%;
-  top: 28%;
+  left: 76%;
+  top: 38%;
 }
 
 
-/* =========================================================
-   敵方城堡
-========================================================= */
+/* 關卡數字 */
 
-.enemy-castle {
+.stage-number {
+  display: block;
+
+  font-family:
+    "Press Start 2P",
+    monospace;
+
+  font-size: 28px;
+
+  color: #fff;
+
+  text-shadow:
+    3px 3px 0 #402717;
+}
+
+
+/* 關卡名稱 */
+
+.stage-name {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #3d291b;
+
+  font-size: 14px;
+  font-weight: 900;
+}
+
+
+/* CLEAR */
+
+.stage-clear {
   position: absolute;
 
-  z-index: 4;
+  left: 4px;
+  top: -18px;
 
-  right: 5%;
-  bottom: 55px;
+  color: #fff;
 
-  font-size: 70px;
+  font-size: 13px;
+  font-weight: 900;
 
-  filter:
-    drop-shadow(
-      0 5px 4px rgba(0,0,0,0.3)
+  text-shadow:
+    2px 2px 0 #302015;
+}
+
+
+/* =====================================================
+   關卡資訊
+===================================================== */
+
+.stage-info {
+  position: absolute;
+
+  right: 28px;
+  bottom: 105px;
+
+  width: 270px;
+
+  padding: 15px 20px;
+
+  background:
+    linear-gradient(
+      to bottom,
+      #fff5d5,
+      #d7b36c
+    );
+
+  border: 4px solid #51331f;
+
+  box-shadow:
+    0 5px 0 #7a532b,
+    0 8px 15px rgba(0,0,0,.3);
+
+  z-index: 40;
+}
+
+
+.stage-info-title {
+  font-size: 23px;
+  font-weight: 900;
+
+  color: #3d2617;
+
+  margin-bottom: 8px;
+}
+
+
+.stage-info-line {
+  display: flex;
+  justify-content: space-between;
+
+  color: #503923;
+
+  font-size: 14px;
+
+  padding: 4px 0;
+}
+
+
+/* =====================================================
+   戰鬥開始
+===================================================== */
+
+.battle-start {
+  position: absolute;
+
+  right: 28px;
+  bottom: 22px;
+
+  z-index: 50;
+
+  width: 310px;
+  height: 72px;
+
+  border-radius: 22px;
+
+  border: 5px solid #b20d88;
+
+  background:
+    linear-gradient(
+      to bottom,
+      #ffe35c,
+      #efb400
+    );
+
+  box-shadow:
+    inset 0 3px 0 rgba(255,255,255,.55),
+    0 5px 0 #765016,
+    0 8px 15px rgba(0,0,0,.3);
+
+  color: #fff;
+
+  font-size: 30px;
+  font-weight: 900;
+
+  text-shadow:
+    3px 3px 0 #3c2614;
+
+  cursor: pointer;
+
+  transition:
+    transform .12s ease,
+    filter .12s ease;
+}
+
+.battle-start:hover {
+  transform: scale(1.04);
+  filter: brightness(1.08);
+}
+
+.battle-start:active {
+  transform: translateY(4px);
+}
+
+
+/* =====================================================
+   底部功能列
+===================================================== */
+
+.map-bottom {
+  position: absolute;
+
+  z-index: 60;
+
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  height: 82px;
+
+  display: flex;
+  align-items: center;
+
+  padding:
+    8px 20px;
+
+  background:
+    linear-gradient(
+      to bottom,
+      #d39755,
+      #8d4c2d
+    );
+
+  border-top: 5px solid #54301d;
+
+  box-shadow:
+    0 -5px 12px rgba(0,0,0,.3);
+}
+
+
+/* 底部按鈕 */
+
+.bottom-btn {
+  min-width: 125px;
+  height: 62px;
+
+  margin-right: 10px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 2px;
+
+  border: 3px solid #4b2d1d;
+
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      to bottom,
+      #eee1bf,
+      #b69b68
+    );
+
+  color: #352315;
+
+  font-weight: 900;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 3px 0 #5c351e;
+}
+
+.bottom-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+}
+
+.bottom-icon {
+  font-size: 25px;
+}
+
+
+.bottom-spacer {
+  flex: 1;
+}
+
+
+/* 攻略社 */
+
+.strategy-club {
+  height: 62px;
+
+  min-width: 180px;
+
+  padding: 0 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  background:
+    linear-gradient(
+      to bottom,
+      #fff0b8,
+      #e1a92d
+    );
+
+  border: 4px solid #58331d;
+
+  border-radius: 18px;
+
+  color: #422715;
+
+  font-size: 22px;
+  font-weight: 900;
+
+  box-shadow:
+    0 4px 0 #633d1d;
+}
+
+.club-icon {
+  font-size: 27px;
+}
+
+
+/* =====================================================
+   戰鬥畫面
+===================================================== */
+
+.battle-screen {
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 100;
+
+  padding: 20px;
+
+  overflow-y: auto;
+
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      #293147,
+      #11151f 70%
     );
 }
 
 
-/* =========================================================
-   地圖下面按鈕
-========================================================= */
-
-.map-menu {
-  display: grid;
-
-  grid-template-columns:
-    repeat(4, 1fr);
-
-  gap: 10px;
-
-  margin-top: 14px;
+.hidden {
+  display: none !important;
 }
 
-.map-menu-btn {
-  min-height: 65px;
 
+/* 戰鬥上方 */
+
+.battle-topbar {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
+  justify-content: space-between;
 
-  gap: 4px;
+  max-width: 920px;
 
-  color: var(--text);
+  margin: 0 auto 16px;
+}
 
-  background: var(--panel);
 
-  border: 1px solid var(--panel-border);
+.battle-back {
+  border: 1px solid #5d687c;
 
-  border-radius: var(--radius);
+  background: #202637;
+
+  color: #fff;
+
+  border-radius: 10px;
+
+  padding: 10px 18px;
 
   cursor: pointer;
-
-  font-weight: 700;
-
-  transition:
-    border-color 0.15s,
-    transform 0.1s;
-}
-
-.map-menu-btn:hover {
-  border-color: var(--coral);
-
-  transform: translateY(-2px);
-}
-
-.map-menu-btn span {
-  font-size: 0.8rem;
-}
-
-.map-menu-btn--battle {
-  border-color: var(--coral);
-
-  color: var(--coral);
 }
 
 
-/* =========================================================
-   右側攻略社
-========================================================= */
+.battle-stage-title {
+  color: #fff;
 
-.guide-sidebar {
-  min-height: 500px;
-
-  padding: 18px;
-
-  border-radius: var(--radius);
-
-  background: var(--panel);
-
-  border: 1px solid var(--panel-border);
-}
-
-.guide-title {
-  text-align: center;
-
-  font-size: 1.45rem;
-
+  font-size: 24px;
   font-weight: 900;
-
-  padding-bottom: 12px;
-
-  margin-bottom: 15px;
-
-  border-bottom: 1px solid var(--panel-border);
-}
-
-.guide-content {
-  color: var(--text-muted);
-
-  line-height: 1.7;
-
-  font-size: 0.88rem;
-}
-
-.guide-content h3 {
-  color: var(--text);
-
-  margin:
-    10px 0
-    6px;
-}
-
-.guide-content p {
-  margin:
-    6px 0;
-}
-
-.guide-content hr {
-  border: 0;
-
-  border-top: 1px solid var(--panel-border);
-
-  margin: 16px 0;
 }
 
 
-/* =========================================================
-   返回地圖
-========================================================= */
-
-.return-map {
-  margin-bottom: 12px;
-
-  background: transparent;
-
-  border: 1px solid var(--panel-border);
-
-  color: var(--text-muted);
-
-  padding: 8px 13px;
-
-  border-radius: 999px;
-
-  cursor: pointer;
-}
-
-.return-map:hover {
-  color: var(--coral);
-
-  border-color: var(--coral);
-}
-
-
-/* =========================================================
-   圖鑑
-========================================================= */
-
-.encyclopedia-grid {
-  display: grid;
-
-  grid-template-columns:
-    repeat(3, 1fr);
-
-  gap: 12px;
-}
-
-.encyclopedia-card {
-  text-align: center;
-
-  padding: 18px;
-
-  background: var(--panel);
-
-  border: 1px solid var(--panel-border);
-
-  border-radius: var(--radius);
-}
-
-.encyclopedia-icon {
-  width: 90px;
-  height: 90px;
-
-  margin:
-    0 auto
-    10px;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  font-size: 48px;
-
-  background:
-    rgba(255,255,255,0.04);
-
-  border-radius: 18px;
-}
-
-.encyclopedia-card h3 {
-  margin:
-    8px 0;
-
-  font-size: 1rem;
-}
-
-.encyclopedia-card p {
-  margin: 0;
-
-  color: var(--text-muted);
-
-  font-size: 0.8rem;
-
-  line-height: 1.5;
-}
-
-.locked-card {
-  opacity: 0.5;
-}
-
-
-/* =========================================================
-   編隊
-========================================================= */
-
-.team-grid {
-  display: grid;
-
-  grid-template-columns:
-    repeat(5, 1fr);
-
-  gap: 10px;
-}
-
-.team-slot {
-  min-height: 120px;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-
-  gap: 8px;
-
-  background: var(--panel);
-
-  border: 1px solid var(--panel-border);
-
-  border-radius: var(--radius);
-}
-
-.team-slot span {
-  font-size: 42px;
-}
-
-.team-slot small {
-  color: var(--text-muted);
-}
-
-.team-slot--empty {
-  opacity: 0.55;
-}
-
-
-/* =========================================================
-   戰鬥
-========================================================= */
+/* HP */
 
 .hp-bars {
   display: flex;
 
   gap: 20px;
 
-  margin-bottom: 10px;
+  max-width: 920px;
+
+  margin: 0 auto 10px;
 }
+
 
 .hp-block {
   flex: 1;
 }
 
-.hp-label {
-  font-size: 0.78rem;
 
-  color: var(--text-muted);
+.hp-label {
+  font-size: 13px;
+  color: #aeb7c8;
 }
 
-.hp-track {
-  height: 10px;
 
-  background: var(--panel);
+.hp-track {
+  height: 12px;
+
+  background: #202637;
 
   border-radius: 999px;
 
@@ -648,8 +809,9 @@
 
   margin-top: 4px;
 
-  border: 1px solid var(--panel-border);
+  border: 1px solid #3c4557;
 }
+
 
 .hp-fill {
   height: 100%;
@@ -657,64 +819,61 @@
   width: 100%;
 
   transition:
-    width 0.2s ease;
+    width .2s ease;
 }
+
 
 .hp-fill--me {
-  background: var(--mint);
+  background: #66dfbf;
 }
+
 
 .hp-fill--enemy {
-  background: var(--coral);
+  background: #ff775d;
 }
 
 
-/* =========================================================
-   戰鬥畫面
-========================================================= */
+/* 戰鬥畫布 */
 
 #battle-canvas {
+  display: block;
+
   width: 100%;
+  max-width: 900px;
 
   height: 220px;
 
-  display: block;
+  margin: 0 auto;
 
   background:
     linear-gradient(
       to bottom,
-      #1a1e2c,
-      #12141f
+      #202638,
+      #11151f
     );
 
-  border: 1px solid var(--panel-border);
+  border: 1px solid #3d4658;
 
-  border-radius: var(--radius);
+  border-radius: 12px;
 }
 
 
-/* =========================================================
-   能量
-========================================================= */
-
-.energy-title {
-  font-size: 0.75rem;
-
-  color: var(--text-muted);
-
-  margin-bottom: 5px;
-}
+/* 能量 */
 
 .deploy-bar {
-  margin-top: 16px;
+  width: 100%;
+  max-width: 900px;
+
+  margin: 16px auto 0;
 }
+
 
 .energy-track {
   height: 8px;
 
-  background: var(--panel);
+  background: #202637;
 
-  border: 1px solid var(--panel-border);
+  border: 1px solid #3d4658;
 
   border-radius: 999px;
 
@@ -722,6 +881,7 @@
 
   margin-bottom: 12px;
 }
+
 
 .energy-fill {
   height: 100%;
@@ -731,251 +891,308 @@
   background:
     linear-gradient(
       90deg,
-      var(--mint),
-      var(--coral)
+      #66dfbf,
+      #ff775d
     );
-
-  transition:
-    width 0.1s linear;
 }
 
 
-/* =========================================================
-   出兵
-========================================================= */
+/* 出兵 */
 
 .deploy-buttons {
   display: flex;
-
   gap: 12px;
 }
+
 
 .deploy-btn {
   flex: 1;
 
   display: flex;
   flex-direction: column;
+
   align-items: center;
 
   gap: 4px;
 
-  background: var(--panel);
+  background: #202637;
 
-  border: 1px solid var(--panel-border);
+  border: 1px solid #3d4658;
 
-  border-radius: var(--radius);
+  border-radius: 12px;
 
   padding: 14px;
 
   cursor: pointer;
 
-  color: var(--text);
-
-  transition:
-    border-color 0.15s ease,
-    transform 0.1s ease;
+  color: #fff;
 }
 
-.deploy-btn:hover:not(:disabled) {
-  border-color: var(--coral);
 
-  transform: translateY(-2px);
+.deploy-btn:hover {
+  border-color: #ff775d;
 }
+
 
 .deploy-icon {
-  font-size: 1.6rem;
+  font-size: 28px;
 }
 
-.deploy-name {
-  font-size: 0.85rem;
 
+.deploy-name {
+  font-size: 14px;
   font-weight: 700;
 }
 
-.deploy-cost {
-  font-size: 0.75rem;
 
-  color: var(--coral);
+.deploy-cost {
+  font-size: 12px;
+  color: #ff967e;
 }
 
 
-/* =========================================================
-   訊息
-========================================================= */
+/* 訊息 */
 
 .game-message {
   text-align: center;
 
   margin-top: 16px;
 
-  font-size: 1.3rem;
+  min-height: 35px;
 
+  color: #fff;
+
+  font-size: 22px;
   font-weight: 900;
-
-  min-height: 32px;
 }
+
 
 .game-message.win {
-  color: var(--mint);
+  color: #66dfbf;
 }
+
 
 .game-message.lose {
-  color: var(--coral);
+  color: #ff775d;
 }
 
 
-/* =========================================================
-   關卡彈窗
-========================================================= */
+/* =====================================================
+   圖鑑 / 編隊視窗
+===================================================== */
 
-.stage-modal {
+.menu-overlay {
   position: fixed;
 
   inset: 0;
 
-  z-index: 100;
+  z-index: 500;
 
-  display: none;
+  display: flex;
 
-  justify-content: center;
   align-items: center;
+  justify-content: center;
 
   background:
-    rgba(0,0,0,0.65);
-
-  padding: 20px;
+    rgba(0,0,0,.65);
 }
 
-.stage-modal.show {
-  display: flex;
+
+.menu-panel {
+  position: relative;
+
+  width: min(600px, 90vw);
+  max-height: 80vh;
+
+  overflow-y: auto;
+
+  padding: 30px;
+
+  background:
+    linear-gradient(
+      to bottom,
+      #fff2c8,
+      #d3ad6c
+    );
+
+  border: 5px solid #4b2c1b;
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,.5);
 }
 
-.stage-modal-box {
-  width: min(420px, 100%);
 
-  padding: 25px;
-
-  text-align: center;
-
-  background: var(--panel);
-
-  border: 1px solid var(--panel-border);
-
-  border-radius: var(--radius);
-}
-
-.stage-modal-box h2 {
+.menu-panel h2 {
   margin-top: 0;
+
+  color: #402717;
+
+  font-size: 28px;
 }
 
-.stage-modal-box p {
-  color: var(--text-muted);
 
-  line-height: 1.7;
-}
+.menu-close {
+  position: absolute;
 
-.stage-modal-buttons {
-  display: flex;
+  right: 12px;
+  top: 10px;
 
-  justify-content: center;
+  width: 40px;
+  height: 40px;
 
-  gap: 10px;
+  border: 0;
 
-  margin-top: 18px;
-}
+  background: transparent;
 
-.modal-btn {
-  padding: 10px 18px;
+  color: #422819;
 
-  border-radius: 999px;
-
-  border: 1px solid var(--panel-border);
-
-  background: var(--panel);
-
-  color: var(--text);
+  font-size: 35px;
 
   cursor: pointer;
 }
 
-.modal-btn:hover {
-  border-color: var(--coral);
+
+.menu-content {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(130px, 1fr)
+    );
+
+  gap: 12px;
 }
 
-.modal-btn--start {
-  background: var(--coral);
 
-  color: white;
+.book-card {
+  padding: 18px 10px;
 
-  border-color: var(--coral);
+  text-align: center;
+
+  background:
+    rgba(255,255,255,.38);
+
+  border: 2px solid #80633e;
+
+  border-radius: 12px;
+
+  color: #422819;
+
+  font-weight: 900;
 }
 
 
-/* =========================================================
+.book-card-icon {
+  display: block;
+
+  font-size: 40px;
+
+  margin-bottom: 8px;
+}
+
+
+/* =====================================================
    手機
-========================================================= */
+===================================================== */
 
-@media (max-width: 850px) {
+@media (max-width: 700px) {
 
-  .game-layout {
-    grid-template-columns: 1fr;
+  .map-header {
+    height: 56px;
   }
 
-  .guide-sidebar {
-    min-height: auto;
+  .map-title {
+    font-size: 25px;
   }
 
-  .map-menu {
-    grid-template-columns:
-      repeat(2, 1fr);
+  .map-game-title {
+    display: none;
   }
 
-  .encyclopedia-grid {
-    grid-template-columns:
-      repeat(2, 1fr);
-  }
-
-  .team-grid {
-    grid-template-columns:
-      repeat(2, 1fr);
+  .map-back {
+    left: 10px;
+    font-size: 13px;
   }
 
   .world-map {
-    height: 430px;
+    top: 56px;
+    bottom: 76px;
   }
 
-}
-
-
-@media (max-width: 560px) {
-
-  .game-header {
-    padding-top: 30px;
+  .stage-node {
+    width: 82px;
+    height: 65px;
   }
 
-  .game-header .hub-back {
-    top: 0;
+  .stage-number {
+    font-size: 20px;
   }
 
-  .game-title-area h1 {
-    font-size: 1.5rem;
+  .stage-name {
+    font-size: 11px;
   }
 
-  .map-menu {
-    grid-template-columns: 1fr 1fr;
+  .stage-info {
+    right: 10px;
+    bottom: 90px;
+
+    width: 190px;
+
+    padding: 10px;
   }
 
-  .encyclopedia-grid {
-    grid-template-columns: 1fr;
+  .stage-info-title {
+    font-size: 17px;
   }
 
-  .hp-bars {
-    flex-direction: column;
-    gap: 8px;
+  .stage-info-line {
+    font-size: 11px;
   }
 
-  .deploy-buttons {
-    flex-direction: column;
+  .battle-start {
+    right: 10px;
+    bottom: 10px;
+
+    width: 190px;
+    height: 60px;
+
+    font-size: 21px;
+  }
+
+  .map-bottom {
+    height: 76px;
+
+    padding: 5px 7px;
+  }
+
+  .bottom-btn {
+    min-width: 75px;
+    height: 60px;
+
+    margin-right: 5px;
+
+    font-size: 11px;
+  }
+
+  .bottom-icon {
+    font-size: 21px;
+  }
+
+  .strategy-club {
+    min-width: 80px;
+
+    padding: 0 8px;
+
+    height: 60px;
+
+    font-size: 14px;
+  }
+
+  .club-icon {
+    font-size: 20px;
   }
 
 }
