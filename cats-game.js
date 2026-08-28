@@ -6,24 +6,11 @@ const STAGES=[
   {name:"第三關",enemyHp:2500,spawnInterval:1700,enemySpeedMul:1.45,enemyDamage:10,stars:"★★★",maxEnemies:16}
 ];
 
-// ==========================================
-// 【圖片替換說明】
-// 把你的圖片上傳到 GitHub repo 裡對應路徑
-// cardIcon = 關卡地圖下方卡片顯示的圖
-// icon     = 戰鬥場景中角色本體的圖
-// 支援 .svg / .png / .jpg / .gif
-//
-// 例如你有一張 mycat.png：
-//   上傳到 assets/battle/mycat.png
-//   把 icon 改成 "assets/battle/mycat.png"
-//
-// 背景：在 drawBackground() 函數裡修改顏色或換成 drawImage()
-// ==========================================
-
+  
 const UNIT_TYPES={
   cat1:{cost:150,hp:180,damage:40,speed:1.00,radius:34,
-    icon:"assets/battle/cat1.svg",   // ← 換成你的戰鬥角色圖路徑
-    cardIcon:"assets/cat1.svg",      // ← 換成你的卡片圖路徑
+    icon:"assets/battle/cat1.svg",   // 
+    cardIcon:"assets/cat1.svg",      // 
     cooldown:900,attackRange:72,attackTime:.16},
   cat2:{cost:300,hp:360,damage:70,speed:.78,radius:40,
     icon:"assets/battle/cat2.svg",
