@@ -1,9 +1,9 @@
 (function(){
 "use strict";
 const STAGES=[
-  {name:"第一關",enemyHp:236000,spawnInterval:2600,enemySpeedMul:1.0,enemyDamage:6,stars:"★",maxEnemies:10},
-  {name:"第二關",enemyHp:360000,spawnInterval:2100,enemySpeedMul:1.2,enemyDamage:8,stars:"★★",maxEnemies:13},
-  {name:"第三關",enemyHp:520000,spawnInterval:1700,enemySpeedMul:1.45,enemyDamage:10,stars:"★★★",maxEnemies:16}
+  {name:"第一關",enemyHp:1000,spawnInterval:2600,enemySpeedMul:1.0,enemyDamage:6,stars:"★",maxEnemies:10},
+  {name:"第二關",enemyHp:1500,spawnInterval:2100,enemySpeedMul:1.2,enemyDamage:8,stars:"★★",maxEnemies:13},
+  {name:"第三關",enemyHp:2500,spawnInterval:1700,enemySpeedMul:1.45,enemyDamage:10,stars:"★★★",maxEnemies:16}
 ];
 
 // ==========================================
