@@ -1,466 +1,859 @@
-.games-body {
-min-height: 100vh;
-padding: 24px 16px 60px;
+(function () {
+"use strict";
+
+const STORAGE_KEY = "kabamodo-save";
+
+const TALENT = {
+luck: {
+maxLevel: 10,
+baseRate: 10,
+ratePerLevel: 5,
+baseCost: 30,
+costGrowth: 15
+},
+
+```
+courage: {
+  maxLevel: 10,
+  baseRate: 50,
+  ratePerLevel: 4,
+  baseCost: 25,
+  costGrowth: 12
+}
+```
+
+};
+
+const TAGS = [
+{
+name: "力量提升",
+tier: "普通",
+power: "+5%",
+weight: 50
+},
+{
+name: "速度提升",
+tier: "普通",
+power: "+5%",
+weight: 50
+},
+{
+name: "生命提升",
+tier: "普通",
+power: "+8%",
+weight: 50
+},
+{
+name: "幸運之星",
+tier: "稀有",
+power: "+10%",
+weight: 25
+},
+{
+name: "堅毅",
+tier: "稀有",
+power: "+12%",
+weight: 25
+},
+{
+name: "勇者之心",
+tier: "稀有",
+power: "+15%",
+weight: 25
+},
+{
+name: "傳說力量",
+tier: "史詩",
+power: "+25%",
+weight: 8
+},
+{
+name: "黃金意志",
+tier: "史詩",
+power: "+30%",
+weight: 8
+},
+{
+name: "命運眷顧",
+tier: "傳說",
+power: "+50%",
+weight: 2
+}
+];
+
+const state = {
+can: 300,
+fish: 300,
+coin: 100,
+
+```
+luckLevel: 0,
+courageLevel: 0,
+
+reroll: 0,
+charm: 0,
+titleOwned: false,
+
+currentTags: [],
+pickedTags: [],
+
+simStep: 0,
+riskChoice: null
+```
+
+};
+
+const $ = id => document.getElementById(id);
+
+const screens = {
+home: $("screen-home"),
+draw: $("screen-draw"),
+sim: $("screen-sim"),
+result: $("screen-result")
+};
+
+function loadSave() {
+try {
+const saved = JSON.parse(
+localStorage.getItem(STORAGE_KEY) || "{}"
+);
+
+```
+  if (typeof saved.can === "number") state.can = saved.can;
+  if (typeof saved.fish === "number") state.fish = saved.fish;
+  if (typeof saved.coin === "number") state.coin = saved.coin;
+
+  if (typeof saved.luckLevel === "number") {
+    state.luckLevel = Math.max(
+      0,
+      Math.min(TALENT.luck.maxLevel, saved.luckLevel)
+    );
+  }
+
+  if (typeof saved.courageLevel === "number") {
+    state.courageLevel = Math.max(
+      0,
+      Math.min(TALENT.courage.maxLevel, saved.courageLevel)
+    );
+  }
+
+  if (typeof saved.reroll === "number") state.reroll = saved.reroll;
+  if (typeof saved.charm === "number") state.charm = saved.charm;
+  if (typeof saved.titleOwned === "boolean") {
+    state.titleOwned = saved.titleOwned;
+  }
+} catch (e) {
+  console.warn("讀取存檔失敗", e);
+}
+```
+
+}
+
+function saveGame() {
+localStorage.setItem(
+STORAGE_KEY,
+JSON.stringify({
+can: state.can,
+fish: state.fish,
+coin: state.coin,
+luckLevel: state.luckLevel,
+courageLevel: state.courageLevel,
+reroll: state.reroll,
+charm: state.charm,
+titleOwned: state.titleOwned
+})
+);
 }
 
-.kb-wrap {
-position: relative;
-z-index: 1;
-max-width: 720px;
-margin: 0 auto;
+function getLuckRate() {
+return Math.min(
+90,
+TALENT.luck.baseRate +
+state.luckLevel * TALENT.luck.ratePerLevel
+);
 }
 
-.kb-topbar {
-display: flex;
-align-items: center;
-justify-content: space-between;
-margin-bottom: 18px;
-flex-wrap: wrap;
-gap: 10px;
+function getCourageRate() {
+return Math.min(
+95,
+TALENT.courage.baseRate +
+state.courageLevel * TALENT.courage.ratePerLevel
+);
 }
 
-.kb-back {
-color: var(--text-muted);
-font-size: 0.85rem;
+function getLuckCost() {
+return (
+TALENT.luck.baseCost +
+state.luckLevel * TALENT.luck.costGrowth
+);
 }
 
-.kb-back:hover {
-color: var(--coral);
+function getCourageCost() {
+return (
+TALENT.courage.baseCost +
+state.courageLevel * TALENT.courage.costGrowth
+);
 }
 
-.kb-title {
-font-size: 1.4rem;
-font-weight: 900;
-margin: 0;
+function updateCurrency() {
+$("cur-can").textContent = state.can;
+$("cur-fish").textContent = state.fish;
+$("cur-coin").textContent = state.coin;
 }
 
-.kb-shop-btn {
-background: var(--panel);
-border: 1px solid var(--panel-border);
-color: var(--text);
-padding: 8px 16px;
-border-radius: 999px;
-font-size: 0.85rem;
-cursor: pointer;
-}
+function updateTalents() {
+$("luck-level").textContent =
+"Lv." + state.luckLevel;
 
-.kb-shop-btn:hover {
-border-color: var(--coral);
-}
+```
+$("courage-level").textContent =
+  "Lv." + state.courageLevel;
 
-.kb-currency-bar {
-display: flex;
-gap: 12px;
-margin-bottom: 24px;
-flex-wrap: wrap;
-}
+$("luck-rate").textContent =
+  getLuckRate() + "%";
 
-.kb-currency {
-background: var(--panel);
-border: 1px solid var(--panel-border);
-border-radius: 999px;
-padding: 8px 18px;
-font-weight: 700;
-display: flex;
-align-items: center;
-gap: 6px;
-}
+$("courage-rate").textContent =
+  getCourageRate() + "%";
 
-.kb-currency-icon {
-font-size: 1.1rem;
-}
+$("luck-cost").textContent =
+  getLuckCost();
 
-.kb-screen {
-animation: fadeIn 0.25s ease;
-}
+$("courage-cost").textContent =
+  getCourageCost();
 
-@keyframes fadeIn {
-from {
-opacity: 0;
-transform: translateY(6px);
-}
+const luckButton = $("luck-upgrade-btn");
+const courageButton = $("courage-upgrade-btn");
 
-to {
-opacity: 1;
-transform: none;
-}
-}
+if (state.luckLevel >= TALENT.luck.maxLevel) {
+  luckButton.textContent = "已達最高等級";
+  luckButton.disabled = true;
+} else {
+  luckButton.innerHTML =
+    "升級（<span id=\"luck-cost\">" +
+    getLuckCost() +
+    "</span> 🥫）";
 
-.hidden {
-display: none !important;
+  luckButton.disabled =
+    state.can < getLuckCost();
 }
 
-.kb-mascot {
-font-size: 4rem;
-text-align: center;
-margin-bottom: 10px;
-}
+if (state.courageLevel >= TALENT.courage.maxLevel) {
+  courageButton.textContent = "已達最高等級";
+  courageButton.disabled = true;
+} else {
+  courageButton.innerHTML =
+    "升級（<span id=\"courage-cost\">" +
+    getCourageCost() +
+    "</span> 🐟）";
 
-.kb-flavor {
-text-align: center;
-color: var(--text-muted);
-margin-bottom: 28px;
+  courageButton.disabled =
+    state.fish < getCourageCost();
 }
+```
 
-.kb-talents {
-display: grid;
-grid-template-columns: 1fr 1fr;
-gap: 16px;
-margin-bottom: 28px;
 }
 
-.kb-talent {
-background: var(--panel);
-border: 1px solid var(--panel-border);
-border-radius: var(--radius);
-padding: 18px;
+function updateUI() {
+updateCurrency();
+updateTalents();
 }
 
-.kb-talent-head {
-display: flex;
-justify-content: space-between;
-font-weight: 700;
-margin-bottom: 6px;
-}
+function showScreen(name) {
+Object.values(screens).forEach(screen => {
+screen.classList.add("hidden");
+});
 
-.kb-talent-head span:last-child {
-color: var(--coral);
-}
+```
+screens[name].classList.remove("hidden");
+```
 
-.kb-talent-desc {
-font-size: 0.82rem;
-color: var(--text-muted);
-margin-bottom: 8px;
-min-height: 34px;
 }
 
-.kb-talent-rate {
-font-size: 0.82rem;
-margin: 0 0 12px;
+function random(min, max) {
+return Math.random() * (max - min) + min;
 }
 
-.kb-talent-rate strong {
-color: var(--mint);
-font-size: 0.95rem;
-}
+function pickWeightedTag() {
+const luckRate = getLuckRate();
 
-.kb-talent-btn {
-width: 100%;
-background: var(--bg);
-border: 1px solid var(--panel-border);
-color: var(--text);
-padding: 8px;
-border-radius: 8px;
-cursor: pointer;
-font-size: 0.85rem;
-}
+```
+const highTierChance = luckRate / 100;
 
-.kb-talent-btn:hover:not(:disabled) {
-border-color: var(--mint);
-color: var(--mint);
-}
+let pool;
 
-.kb-talent-btn:disabled {
-opacity: 0.4;
-cursor: not-allowed;
+if (Math.random() < highTierChance) {
+  pool = TAGS.filter(tag =>
+    tag.tier === "稀有" ||
+    tag.tier === "史詩" ||
+    tag.tier === "傳說"
+  );
+} else {
+  pool = TAGS.filter(tag =>
+    tag.tier === "普通" ||
+    tag.tier === "稀有"
+  );
 }
 
-.kb-btn-primary {
-display: block;
-width: 100%;
-padding: 16px;
-background: var(--coral);
-color: #1B1F2E;
-border: none;
-border-radius: var(--radius);
-font-size: 1.1rem;
-font-weight: 900;
-cursor: pointer;
-box-shadow: 0 4px 0 #c96538;
-}
+const totalWeight = pool.reduce(
+  (sum, tag) => sum + tag.weight,
+  0
+);
 
-.kb-btn-primary:hover:not(:disabled) {
-transform: translateY(-2px);
-}
+let value = Math.random() * totalWeight;
 
-.kb-btn-primary:disabled {
-opacity: 0.4;
-cursor: not-allowed;
-box-shadow: none;
-}
+for (const tag of pool) {
+  value -= tag.weight;
 
-.kb-btn-secondary {
-padding: 14px 20px;
-background: var(--panel);
-border: 1px solid var(--panel-border);
-color: var(--text);
-border-radius: var(--radius);
-font-size: 0.95rem;
-cursor: pointer;
+  if (value <= 0) {
+    return {
+      ...tag
+    };
+  }
 }
 
-.kb-btn-secondary:hover:not(:disabled) {
-border-color: var(--mint);
-}
+return {
+  ...pool[pool.length - 1]
+};
+```
 
-.kb-btn-secondary:disabled {
-opacity: 0.4;
-cursor: not-allowed;
 }
 
-.kb-last-result {
-margin-top: 24px;
-background: var(--panel);
-border: 1px solid var(--panel-border);
-border-radius: var(--radius);
-padding: 16px 20px;
-}
+function drawTags() {
+state.currentTags = [];
+state.pickedTags = [];
 
-.kb-last-result-title {
-font-size: 0.8rem;
-color: var(--text-muted);
-margin: 0 0 6px;
-}
+```
+const count = 6;
 
-.kb-screen-title {
-font-size: 1.2rem;
-font-weight: 900;
-margin-bottom: 18px;
-text-align: center;
+for (let i = 0; i < count; i++) {
+  state.currentTags.push(pickWeightedTag());
 }
 
-.kb-tag-grid {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-gap: 12px;
-margin-bottom: 20px;
-}
+renderTags();
+```
 
-.kb-tag-card {
-position: relative;
-border-radius: var(--radius);
-padding: 16px 12px;
-text-align: center;
-cursor: pointer;
-border: 2px solid var(--panel-border);
-background: var(--panel);
-transition:
-transform 0.12s ease,
-border-color 0.12s ease,
-box-shadow 0.12s ease;
 }
 
-.kb-tag-card:hover {
-transform: translateY(-3px);
-}
+function renderTags() {
+const grid = $("tag-grid");
+
+```
+grid.innerHTML = "";
+
+state.currentTags.forEach((tag, index) => {
+
+  const card = document.createElement("div");
+
+  card.className = "kb-tag-card";
 
-.kb-tag-card.picked {
-border-color: #ff3b30;
-box-shadow:
-0 0 0 2px rgba(255, 59, 48, 0.35),
-0 0 14px rgba(255, 59, 48, 0.25);
+  if (state.pickedTags.includes(index)) {
+    card.classList.add("picked");
+  }
+
+  card.innerHTML = `
+    <div class="kb-tag-tier">
+      ${tag.tier}
+    </div>
+
+    <div class="kb-tag-name">
+      ${tag.name}
+    </div>
+
+    <div class="kb-tag-power">
+      ${tag.power}
+    </div>
+  `;
+
+  card.addEventListener("click", () => {
+    toggleTag(index);
+  });
+
+  grid.appendChild(card);
+});
+
+$("pick-count").textContent =
+  state.pickedTags.length;
+
+$("confirm-pick-btn").disabled =
+  state.pickedTags.length !== 3;
+```
+
 }
+
+function toggleTag(index) {
 
-.kb-tag-card.picked::after {
-content: "✓ 已選";
-position: absolute;
-top: 7px;
-right: 7px;
-background: #ff3b30;
-color: #fff;
-border-radius: 6px;
-padding: 3px 6px;
-font-size: 0.65rem;
-font-weight: 900;
+```
+const position =
+  state.pickedTags.indexOf(index);
+
+if (position !== -1) {
+  state.pickedTags.splice(position, 1);
+  renderTags();
+  return;
 }
 
-.kb-tag-tier {
-font-size: 0.7rem;
-font-weight: 900;
-margin-bottom: 6px;
-letter-spacing: 1px;
+if (state.pickedTags.length >= 3) {
+  return;
 }
+
+state.pickedTags.push(index);
 
-.kb-tag-name {
-font-size: 0.95rem;
-font-weight: 700;
+renderTags();
+```
+
 }
+
+function startSimulation() {
 
-.kb-tag-power {
-font-size: 0.75rem;
-margin-top: 6px;
-opacity: 0.85;
+```
+if (state.pickedTags.length !== 3) {
+  return;
 }
+
+showScreen("sim");
+
+state.simStep = 0;
+state.riskChoice = null;
+
+$("sim-log").innerHTML = "";
+
+$("sim-choices").classList.add("hidden");
+$("sim-choices").innerHTML = "";
+
+$("sim-continue-btn").classList.add("hidden");
 
-.kb-draw-actions {
-display: flex;
-gap: 12px;
-justify-content: center;
-flex-wrap: wrap;
+runSimulationStep();
+```
+
 }
+
+function addLog(text, type) {
+
+```
+const line = document.createElement("div");
+
+line.className =
+  "kb-sim-log-line" +
+  (type ? " " + type : "");
 
-.kb-sim-log {
-background: var(--panel);
-border: 1px solid var(--panel-border);
-border-radius: var(--radius);
-padding: 20px;
-min-height: 160px;
-margin-bottom: 18px;
-display: flex;
-flex-direction: column;
-gap: 10px;
+line.textContent = text;
+
+$("sim-log").appendChild(line);
+```
+
 }
+
+function runSimulationStep() {
+
+```
+if (state.simStep === 0) {
+
+  addLog("🐹 加碼多多踏上了冒險旅程。");
 
-.kb-sim-log-line {
-font-size: 0.95rem;
-line-height: 1.6;
+  state.simStep++;
+
+  setTimeout(runSimulationStep, 500);
+
+  return;
 }
+
+if (state.simStep === 1) {
+
+  const picked = state.pickedTags
+    .map(index => state.currentTags[index]);
 
-.kb-sim-log-line.delta-pos {
-color: var(--mint);
+  addLog(
+    "🏷️ 目前詞條：" +
+    picked.map(tag => tag.name).join("、")
+  );
+
+  state.simStep++;
+
+  setTimeout(runSimulationStep, 500);
+
+  return;
 }
+
+if (state.simStep === 2) {
+
+  addLog("❓ 遇到了需要勇氣做決定的事件。");
 
-.kb-sim-log-line.delta-neg {
-color: var(--coral);
+  showRiskChoices();
+
+  return;
 }
+
+finishSimulation();
+```
 
-.kb-sim-choices {
-display: flex;
-flex-direction: column;
-gap: 10px;
-margin-bottom: 18px;
 }
+
+function showRiskChoices() {
+
+```
+const choices = $("sim-choices");
+
+choices.innerHTML = "";
+
+choices.classList.remove("hidden");
+
+const safeButton =
+  document.createElement("button");
+
+safeButton.className = "kb-choice-btn";
+
+safeButton.textContent =
+  "🛡️ 穩妥行動：安全但獎勵較少";
 
-.kb-choice-btn {
-padding: 14px 18px;
-background: var(--panel);
-border: 1px solid var(--panel-border);
-color: var(--text);
-border-radius: var(--radius);
-text-align: left;
-cursor: pointer;
-font-size: 0.95rem;
+safeButton.addEventListener(
+  "click",
+  () => chooseRisk(false)
+);
+
+const riskButton =
+  document.createElement("button");
+
+riskButton.className = "kb-choice-btn";
+
+riskButton.textContent =
+  "⚔️ 勇敢挑戰：成功獎勵大量增加";
+
+riskButton.addEventListener(
+  "click",
+  () => chooseRisk(true)
+);
+
+choices.appendChild(safeButton);
+choices.appendChild(riskButton);
+```
+
 }
+
+function chooseRisk(isRisk) {
+
+```
+$("sim-choices").classList.add("hidden");
+
+if (!isRisk) {
 
-.kb-choice-btn:hover {
-border-color: var(--coral);
+  addLog(
+    "🛡️ 你選擇了穩妥行動。",
+    "delta-pos"
+  );
+
+  state.riskChoice = "safe";
+
+  state.simStep = 3;
+
+  setTimeout(finishSimulation, 500);
+
+  return;
 }
+
+const success =
+  Math.random() <
+  getCourageRate() / 100;
+
+state.riskChoice =
+  success ? "success" : "fail";
+
+if (success) {
+
+  addLog(
+    "💪 膽識發揮作用！挑戰成功！",
+    "delta-pos"
+  );
+
+} else {
 
-.kb-result-tier {
-text-align: center;
-font-size: 2rem;
-font-weight: 900;
-margin-bottom: 8px;
+  addLog(
+    "💥 挑戰失敗了，但冒險仍然繼續。",
+    "delta-neg"
+  );
 }
 
-.kb-result-story {
-text-align: center;
-color: var(--text-muted);
-margin-bottom: 24px;
+state.simStep = 3;
+
+setTimeout(finishSimulation, 700);
+```
+
 }
+
+function getResult() {
+
+```
+const picked =
+  state.pickedTags
+    .map(index => state.currentTags[index]);
 
-.kb-result-rewards {
-display: flex;
-justify-content: center;
-gap: 20px;
-margin-bottom: 28px;
-font-size: 1.1rem;
-font-weight: 700;
+let score = 0;
+
+picked.forEach(tag => {
+
+  if (tag.tier === "普通") score += 1;
+  if (tag.tier === "稀有") score += 2;
+  if (tag.tier === "史詩") score += 4;
+  if (tag.tier === "傳說") score += 7;
+
+});
+
+if (state.riskChoice === "success") {
+  score += 4;
 }
 
-.kb-reward-item {
-display: flex;
-align-items: center;
-gap: 6px;
+if (state.riskChoice === "fail") {
+  score -= 1;
 }
 
-.kb-overlay {
-position: fixed;
-inset: 0;
-z-index: 500;
-background: rgba(0,0,0,0.65);
-display: flex;
-align-items: center;
-justify-content: center;
-padding: 20px;
+if (score >= 15) {
+  return {
+    tier: "傳說級冒險",
+    story: "這次的冒險非常成功！",
+    can: 180,
+    fish: 150,
+    coin: 40
+  };
 }
 
-.kb-shop-panel {
-position: relative;
-width: min(480px, 100%);
-background: var(--panel);
-border: 1px solid var(--panel-border);
-border-radius: var(--radius);
-padding: 28px;
+if (score >= 9) {
+  return {
+    tier: "史詩級冒險",
+    story: "收穫滿滿，這趟旅程相當精彩。",
+    can: 120,
+    fish: 100,
+    coin: 25
+  };
 }
 
-.kb-shop-panel h2 {
-margin-top: 0;
+if (score >= 5) {
+  return {
+    tier: "稀有級冒險",
+    story: "這次冒險有不少不錯的收穫。",
+    can: 80,
+    fish: 70,
+    coin: 15
+  };
 }
+
+return {
+  tier: "普通級冒險",
+  story: "平穩完成了一趟冒險。",
+  can: 50,
+  fish: 40,
+  coin: 8
+};
+```
 
-.kb-shop-close {
-position: absolute;
-right: 14px;
-top: 10px;
-background: none;
-border: none;
-color: var(--text-muted);
-font-size: 1.8rem;
-cursor: pointer;
 }
+
+function finishSimulation() {
+
+```
+const result = getResult();
+
+state.can += result.can;
+state.fish += result.fish;
+state.coin += result.coin;
+
+$("result-tier").textContent =
+  result.tier;
+
+$("result-story").textContent =
+  result.story;
+
+$("reward-can").textContent =
+  result.can;
+
+$("reward-fish").textContent =
+  result.fish;
+
+$("reward-coin").textContent =
+  result.coin;
+
+$("last-result").classList.remove("hidden");
 
-.kb-shop-item {
-display: flex;
-align-items: center;
-justify-content: space-between;
-gap: 12px;
-padding: 14px 0;
-border-top: 1px solid var(--panel-border);
+$("last-result-text").textContent =
+  result.tier + "｜" + result.story;
+
+saveGame();
+updateUI();
+
+showScreen("result");
+```
+
 }
+
+$("luck-upgrade-btn").addEventListener(
+"click",
+() => {
 
-.kb-shop-item-name {
-margin: 0 0 4px;
-font-weight: 700;
+```
+  if (state.luckLevel >= TALENT.luck.maxLevel) {
+    return;
+  }
+
+  const cost = getLuckCost();
+
+  if (state.can < cost) {
+    return;
+  }
+
+  state.can -= cost;
+  state.luckLevel++;
+
+  saveGame();
+  updateUI();
 }
+```
+
+);
 
-.kb-shop-item-desc {
-margin: 0;
-font-size: 0.8rem;
-color: var(--text-muted);
+$("courage-upgrade-btn").addEventListener(
+"click",
+() => {
+
+```
+  if (
+    state.courageLevel >=
+    TALENT.courage.maxLevel
+  ) {
+    return;
+  }
+
+  const cost = getCourageCost();
+
+  if (state.fish < cost) {
+    return;
+  }
+
+  state.fish -= cost;
+  state.courageLevel++;
+
+  saveGame();
+  updateUI();
 }
+```
+
+);
 
-.kb-shop-buy-btn {
-flex-shrink: 0;
-padding: 10px 16px;
-background: var(--coral);
-color: #1B1F2E;
-border: none;
-border-radius: 8px;
-font-weight: 700;
-cursor: pointer;
-white-space: nowrap;
+$("start-sim-btn").addEventListener(
+"click",
+() => {
+drawTags();
+showScreen("draw");
 }
+);
+
+$("confirm-pick-btn").addEventListener(
+"click",
+startSimulation
+);
+
+$("reroll-btn").addEventListener(
+"click",
+() => {
+
+```
+  if (state.reroll <= 0) {
+    return;
+  }
 
-.kb-shop-buy-btn:disabled {
-opacity: 0.4;
-cursor: not-allowed;
+  state.reroll--;
+
+  drawTags();
+
+  saveGame();
+  updateUI();
+
+  $("reroll-stock").textContent =
+    state.reroll;
 }
+```
 
-@media (max-width: 560px) {
+);
 
-.kb-talents {
-grid-template-columns: 1fr;
+$("result-back-btn").addEventListener(
+"click",
+() => {
+showScreen("home");
 }
+);
 
-.kb-title {
-font-size: 1.1rem;
+$("kb-shop-btn").addEventListener(
+"click",
+() => {
+$("shop-overlay").classList.remove("hidden");
 }
+);
 
-.kb-tag-grid {
-grid-template-columns: 1fr 1fr;
+$("shop-close").addEventListener(
+"click",
+() => {
+$("shop-overlay").classList.add("hidden");
 }
+);
 
-.kb-tag-card {
-padding: 14px 8px;
+$("shop-overlay").addEventListener(
+"click",
+event => {
+if (event.target === $("shop-overlay")) {
+$("shop-overlay").classList.add("hidden");
 }
 }
+);
+
+document.querySelectorAll(".kb-shop-buy-btn")
+.forEach(button => {
+
+```
+  button.addEventListener(
+    "click",
+    () => {
+
+      const item =
+        button.dataset.item;
+
+      const price =
+        Number(button.dataset.price);
+
+      if (state.coin < price) {
+        return;
+      }
+
+      if (item === "title" && state.titleOwned) {
+        return;
+      }
+
+      state.coin -= price;
+
+      if (item === "reroll") {
+        state.reroll++;
+      }
+
+      if (item === "charm") {
+        state.charm++;
+      }
+
+      if (item === "title") {
+        state.titleOwned = true;
+        button.textContent = "已購買";
+        button.disabled = true;
+      }
+
+      saveGame();
+      updateUI();
+
+      $("reroll-stock").textContent =
+        state.reroll;
+    }
+  );
+});
+```
+
+loadSave();
+updateUI();
+
+$("reroll-stock").textContent =
+state.reroll;
+
+})();
