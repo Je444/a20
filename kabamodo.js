@@ -1,433 +1,859 @@
 (function () {
-  /* =====================================================
-     詞條池設定
-  ===================================================== */
-  const TIERS = [
-    { key: 'white',   name: '白',  color: '#EDEDF2', power: 1,  weight: 35   },
-    { key: 'black',   name: '黑',  color: '#8b8b95', power: 2,  weight: 20   },
-    { key: 'green',   name: '綠',  color: '#6fe0a0', power: 3,  weight: 15   },
-    { key: 'blue',    name: '藍',  color: '#6fb3e7', power: 4,  weight: 10   },
-    { key: 'purple',  name: '紫',  color: '#b78bff', power: 5,  weight: 7    },
-    { key: 'cyan',    name: '青',  color: '#5be6e6', power: 6,  weight: 5    },
-    { key: 'gold',    name: '金',  color: '#ffcf4d', power: 7,  weight: 3.2  },
-    { key: 'red',     name: '紅',  color: '#ff6b5e', power: 8,  weight: 1.8  },
-    { key: 'rainbow', name: '彩',  color: '#e07bff', power: 10, weight: 0.9  },
-    { key: 'ex',      name: 'EX',  color: '#fff6c8', power: 15, weight: 0.1  },
-  ];
-  const GREEN_INDEX = TIERS.findIndex(t => t.key === 'green');
+"use strict";
 
-  const DESCRIPTORS = [
-    '敏銳嗅覺', '堅韌步伐', '幸運符咒', '神秘直覺', '過人膽識',
-    '貪吃本能', '夜視能力', '順風耳', '鋼鐵胃', '冒險家的心',
-    '順手牽羊', '過目不忘',
-  ];
-  const EX_NAMES = ['多多之心', '隱藏城鎮地圖', '傳說鑰匙', '時間沙漏'];
+const STORAGE_KEY = "kabamodo-save";
 
-  /* =====================================================
-     事件池
-  ===================================================== */
-  const AUTO_EVENTS = [
-    '{name}走進一片陌生的森林，四處張望…',
-    '路上撿到一顆閃亮的石頭，感覺是好兆頭！',
-    '遇到一隻友善的小動物，分享了一點食物。',
-    '天氣突然變差，{name}加快了腳步。',
-    '發現了一條沒走過的小路，猶豫了一下還是走了進去。',
-    '肚子餓了，靠著隨身的乾糧撐了過去。',
-  ];
+const TALENT = {
+luck: {
+maxLevel: 10,
+baseRate: 10,
+ratePerLevel: 5,
+baseCost: 30,
+costGrowth: 15
+},
 
-  const MAJOR_EVENTS = [
-    {
-      text: '前方出現一個深不見底的洞穴，隱約傳出奇怪的聲音…',
-      choices: [
-        { label: '謹慎地繞路而行', risk: 'safe' },
-        { label: '跟著聲音走進去看看', risk: 'risky' },
-      ],
-    },
-    {
-      text: '遇到另一隻探險中的旅伴，牠邀請{name}一起合作。',
-      choices: [
-        { label: '答應合作，穩紮穩打', risk: 'safe' },
-        { label: '婉拒邀請，自己單獨闖蕩', risk: 'risky' },
-      ],
-    },
-    {
-      text: '看到一棵結滿奇異果實的樹，不確定能不能吃。',
-      choices: [
-        { label: '只採摘看起來安全的果實', risk: 'safe' },
-        { label: '大膽嘗一口最鮮豔的那顆', risk: 'risky' },
-      ],
-    },
-    {
-      text: '眼前有兩條岔路，一條寬敞平坦，一條狹窄崎嶇。',
-      choices: [
-        { label: '走寬敞平坦的路', risk: 'safe' },
-        { label: '挑戰狹窄崎嶇的捷徑', risk: 'risky' },
-      ],
-    },
-  ];
+```
+courage: {
+  maxLevel: 10,
+  baseRate: 50,
+  ratePerLevel: 4,
+  baseCost: 25,
+  costGrowth: 12
+}
+```
 
-  /* =====================================================
-     狀態存取
-  ===================================================== */
-  const KEY = {
-    can: 'kbCan', fish: 'kbFish', coin: 'kbCoin',
-    luck: 'kbLuckLv', courage: 'kbCourageLv',
-    reroll: 'kbRerollStock', charm: 'kbCharmStock', title: 'kbHasTitle',
+};
+
+const TAGS = [
+{
+name: "力量提升",
+tier: "普通",
+power: "+5%",
+weight: 50
+},
+{
+name: "速度提升",
+tier: "普通",
+power: "+5%",
+weight: 50
+},
+{
+name: "生命提升",
+tier: "普通",
+power: "+8%",
+weight: 50
+},
+{
+name: "幸運之星",
+tier: "稀有",
+power: "+10%",
+weight: 25
+},
+{
+name: "堅毅",
+tier: "稀有",
+power: "+12%",
+weight: 25
+},
+{
+name: "勇者之心",
+tier: "稀有",
+power: "+15%",
+weight: 25
+},
+{
+name: "傳說力量",
+tier: "史詩",
+power: "+25%",
+weight: 8
+},
+{
+name: "黃金意志",
+tier: "史詩",
+power: "+30%",
+weight: 8
+},
+{
+name: "命運眷顧",
+tier: "傳說",
+power: "+50%",
+weight: 2
+}
+];
+
+const state = {
+can: 300,
+fish: 300,
+coin: 100,
+
+```
+luckLevel: 0,
+courageLevel: 0,
+
+reroll: 0,
+charm: 0,
+titleOwned: false,
+
+currentTags: [],
+pickedTags: [],
+
+simStep: 0,
+riskChoice: null
+```
+
+};
+
+const $ = id => document.getElementById(id);
+
+const screens = {
+home: $("screen-home"),
+draw: $("screen-draw"),
+sim: $("screen-sim"),
+result: $("screen-result")
+};
+
+function loadSave() {
+try {
+const saved = JSON.parse(
+localStorage.getItem(STORAGE_KEY) || "{}"
+);
+
+```
+  if (typeof saved.can === "number") state.can = saved.can;
+  if (typeof saved.fish === "number") state.fish = saved.fish;
+  if (typeof saved.coin === "number") state.coin = saved.coin;
+
+  if (typeof saved.luckLevel === "number") {
+    state.luckLevel = Math.max(
+      0,
+      Math.min(TALENT.luck.maxLevel, saved.luckLevel)
+    );
+  }
+
+  if (typeof saved.courageLevel === "number") {
+    state.courageLevel = Math.max(
+      0,
+      Math.min(TALENT.courage.maxLevel, saved.courageLevel)
+    );
+  }
+
+  if (typeof saved.reroll === "number") state.reroll = saved.reroll;
+  if (typeof saved.charm === "number") state.charm = saved.charm;
+  if (typeof saved.titleOwned === "boolean") {
+    state.titleOwned = saved.titleOwned;
+  }
+} catch (e) {
+  console.warn("讀取存檔失敗", e);
+}
+```
+
+}
+
+function saveGame() {
+localStorage.setItem(
+STORAGE_KEY,
+JSON.stringify({
+can: state.can,
+fish: state.fish,
+coin: state.coin,
+luckLevel: state.luckLevel,
+courageLevel: state.courageLevel,
+reroll: state.reroll,
+charm: state.charm,
+titleOwned: state.titleOwned
+})
+);
+}
+
+function getLuckRate() {
+return Math.min(
+90,
+TALENT.luck.baseRate +
+state.luckLevel * TALENT.luck.ratePerLevel
+);
+}
+
+function getCourageRate() {
+return Math.min(
+95,
+TALENT.courage.baseRate +
+state.courageLevel * TALENT.courage.ratePerLevel
+);
+}
+
+function getLuckCost() {
+return (
+TALENT.luck.baseCost +
+state.luckLevel * TALENT.luck.costGrowth
+);
+}
+
+function getCourageCost() {
+return (
+TALENT.courage.baseCost +
+state.courageLevel * TALENT.courage.costGrowth
+);
+}
+
+function updateCurrency() {
+$("cur-can").textContent = state.can;
+$("cur-fish").textContent = state.fish;
+$("cur-coin").textContent = state.coin;
+}
+
+function updateTalents() {
+$("luck-level").textContent =
+"Lv." + state.luckLevel;
+
+```
+$("courage-level").textContent =
+  "Lv." + state.courageLevel;
+
+$("luck-rate").textContent =
+  getLuckRate() + "%";
+
+$("courage-rate").textContent =
+  getCourageRate() + "%";
+
+$("luck-cost").textContent =
+  getLuckCost();
+
+$("courage-cost").textContent =
+  getCourageCost();
+
+const luckButton = $("luck-upgrade-btn");
+const courageButton = $("courage-upgrade-btn");
+
+if (state.luckLevel >= TALENT.luck.maxLevel) {
+  luckButton.textContent = "已達最高等級";
+  luckButton.disabled = true;
+} else {
+  luckButton.innerHTML =
+    "升級（<span id=\"luck-cost\">" +
+    getLuckCost() +
+    "</span> 🥫）";
+
+  luckButton.disabled =
+    state.can < getLuckCost();
+}
+
+if (state.courageLevel >= TALENT.courage.maxLevel) {
+  courageButton.textContent = "已達最高等級";
+  courageButton.disabled = true;
+} else {
+  courageButton.innerHTML =
+    "升級（<span id=\"courage-cost\">" +
+    getCourageCost() +
+    "</span> 🐟）";
+
+  courageButton.disabled =
+    state.fish < getCourageCost();
+}
+```
+
+}
+
+function updateUI() {
+updateCurrency();
+updateTalents();
+}
+
+function showScreen(name) {
+Object.values(screens).forEach(screen => {
+screen.classList.add("hidden");
+});
+
+```
+screens[name].classList.remove("hidden");
+```
+
+}
+
+function random(min, max) {
+return Math.random() * (max - min) + min;
+}
+
+function pickWeightedTag() {
+const luckRate = getLuckRate();
+
+```
+const highTierChance = luckRate / 100;
+
+let pool;
+
+if (Math.random() < highTierChance) {
+  pool = TAGS.filter(tag =>
+    tag.tier === "稀有" ||
+    tag.tier === "史詩" ||
+    tag.tier === "傳說"
+  );
+} else {
+  pool = TAGS.filter(tag =>
+    tag.tier === "普通" ||
+    tag.tier === "稀有"
+  );
+}
+
+const totalWeight = pool.reduce(
+  (sum, tag) => sum + tag.weight,
+  0
+);
+
+let value = Math.random() * totalWeight;
+
+for (const tag of pool) {
+  value -= tag.weight;
+
+  if (value <= 0) {
+    return {
+      ...tag
+    };
+  }
+}
+
+return {
+  ...pool[pool.length - 1]
+};
+```
+
+}
+
+function drawTags() {
+state.currentTags = [];
+state.pickedTags = [];
+
+```
+const count = 6;
+
+for (let i = 0; i < count; i++) {
+  state.currentTags.push(pickWeightedTag());
+}
+
+renderTags();
+```
+
+}
+
+function renderTags() {
+const grid = $("tag-grid");
+
+```
+grid.innerHTML = "";
+
+state.currentTags.forEach((tag, index) => {
+
+  const card = document.createElement("div");
+
+  card.className = "kb-tag-card";
+
+  if (state.pickedTags.includes(index)) {
+    card.classList.add("picked");
+  }
+
+  card.innerHTML = `
+    <div class="kb-tag-tier">
+      ${tag.tier}
+    </div>
+
+    <div class="kb-tag-name">
+      ${tag.name}
+    </div>
+
+    <div class="kb-tag-power">
+      ${tag.power}
+    </div>
+  `;
+
+  card.addEventListener("click", () => {
+    toggleTag(index);
+  });
+
+  grid.appendChild(card);
+});
+
+$("pick-count").textContent =
+  state.pickedTags.length;
+
+$("confirm-pick-btn").disabled =
+  state.pickedTags.length !== 3;
+```
+
+}
+
+function toggleTag(index) {
+
+```
+const position =
+  state.pickedTags.indexOf(index);
+
+if (position !== -1) {
+  state.pickedTags.splice(position, 1);
+  renderTags();
+  return;
+}
+
+if (state.pickedTags.length >= 3) {
+  return;
+}
+
+state.pickedTags.push(index);
+
+renderTags();
+```
+
+}
+
+function startSimulation() {
+
+```
+if (state.pickedTags.length !== 3) {
+  return;
+}
+
+showScreen("sim");
+
+state.simStep = 0;
+state.riskChoice = null;
+
+$("sim-log").innerHTML = "";
+
+$("sim-choices").classList.add("hidden");
+$("sim-choices").innerHTML = "";
+
+$("sim-continue-btn").classList.add("hidden");
+
+runSimulationStep();
+```
+
+}
+
+function addLog(text, type) {
+
+```
+const line = document.createElement("div");
+
+line.className =
+  "kb-sim-log-line" +
+  (type ? " " + type : "");
+
+line.textContent = text;
+
+$("sim-log").appendChild(line);
+```
+
+}
+
+function runSimulationStep() {
+
+```
+if (state.simStep === 0) {
+
+  addLog("🐹 加碼多多踏上了冒險旅程。");
+
+  state.simStep++;
+
+  setTimeout(runSimulationStep, 500);
+
+  return;
+}
+
+if (state.simStep === 1) {
+
+  const picked = state.pickedTags
+    .map(index => state.currentTags[index]);
+
+  addLog(
+    "🏷️ 目前詞條：" +
+    picked.map(tag => tag.name).join("、")
+  );
+
+  state.simStep++;
+
+  setTimeout(runSimulationStep, 500);
+
+  return;
+}
+
+if (state.simStep === 2) {
+
+  addLog("❓ 遇到了需要勇氣做決定的事件。");
+
+  showRiskChoices();
+
+  return;
+}
+
+finishSimulation();
+```
+
+}
+
+function showRiskChoices() {
+
+```
+const choices = $("sim-choices");
+
+choices.innerHTML = "";
+
+choices.classList.remove("hidden");
+
+const safeButton =
+  document.createElement("button");
+
+safeButton.className = "kb-choice-btn";
+
+safeButton.textContent =
+  "🛡️ 穩妥行動：安全但獎勵較少";
+
+safeButton.addEventListener(
+  "click",
+  () => chooseRisk(false)
+);
+
+const riskButton =
+  document.createElement("button");
+
+riskButton.className = "kb-choice-btn";
+
+riskButton.textContent =
+  "⚔️ 勇敢挑戰：成功獎勵大量增加";
+
+riskButton.addEventListener(
+  "click",
+  () => chooseRisk(true)
+);
+
+choices.appendChild(safeButton);
+choices.appendChild(riskButton);
+```
+
+}
+
+function chooseRisk(isRisk) {
+
+```
+$("sim-choices").classList.add("hidden");
+
+if (!isRisk) {
+
+  addLog(
+    "🛡️ 你選擇了穩妥行動。",
+    "delta-pos"
+  );
+
+  state.riskChoice = "safe";
+
+  state.simStep = 3;
+
+  setTimeout(finishSimulation, 500);
+
+  return;
+}
+
+const success =
+  Math.random() <
+  getCourageRate() / 100;
+
+state.riskChoice =
+  success ? "success" : "fail";
+
+if (success) {
+
+  addLog(
+    "💪 膽識發揮作用！挑戰成功！",
+    "delta-pos"
+  );
+
+} else {
+
+  addLog(
+    "💥 挑戰失敗了，但冒險仍然繼續。",
+    "delta-neg"
+  );
+}
+
+state.simStep = 3;
+
+setTimeout(finishSimulation, 700);
+```
+
+}
+
+function getResult() {
+
+```
+const picked =
+  state.pickedTags
+    .map(index => state.currentTags[index]);
+
+let score = 0;
+
+picked.forEach(tag => {
+
+  if (tag.tier === "普通") score += 1;
+  if (tag.tier === "稀有") score += 2;
+  if (tag.tier === "史詩") score += 4;
+  if (tag.tier === "傳說") score += 7;
+
+});
+
+if (state.riskChoice === "success") {
+  score += 4;
+}
+
+if (state.riskChoice === "fail") {
+  score -= 1;
+}
+
+if (score >= 15) {
+  return {
+    tier: "傳說級冒險",
+    story: "這次的冒險非常成功！",
+    can: 180,
+    fish: 150,
+    coin: 40
   };
-  function getNum(k, d = 0) { return parseInt(localStorage.getItem(k) || String(d), 10); }
-  function setNum(k, v) { localStorage.setItem(k, String(v)); }
-  function getBool(k) { return localStorage.getItem(k) === '1'; }
-  function setBool(k, v) { localStorage.setItem(k, v ? '1' : '0'); }
+}
 
-  let state = {
-    can: getNum(KEY.can), fish: getNum(KEY.fish), coin: getNum(KEY.coin),
-    luckLv: getNum(KEY.luck), courageLv: getNum(KEY.courage),
-    rerollStock: getNum(KEY.reroll), charmStock: getNum(KEY.charm),
-    hasTitle: getBool(KEY.title),
+if (score >= 9) {
+  return {
+    tier: "史詩級冒險",
+    story: "收穫滿滿，這趟旅程相當精彩。",
+    can: 120,
+    fish: 100,
+    coin: 25
   };
-  function persist() {
-    setNum(KEY.can, state.can); setNum(KEY.fish, state.fish); setNum(KEY.coin, state.coin);
-    setNum(KEY.luck, state.luckLv); setNum(KEY.courage, state.courageLv);
-    setNum(KEY.reroll, state.rerollStock); setNum(KEY.charm, state.charmStock);
-    setBool(KEY.title, state.hasTitle);
-  }
+}
 
-  /* =====================================================
-     DOM
-  ===================================================== */
-  const el = (id) => document.getElementById(id);
-  const curCan = el('cur-can'), curFish = el('cur-fish'), curCoin = el('cur-coin');
-  const luckLevelEl = el('luck-level'), courageLevelEl = el('courage-level');
-  const luckCostEl = el('luck-cost'), courageCostEl = el('courage-cost');
-  const luckBtn = el('luck-upgrade-btn'), courageBtn = el('courage-upgrade-btn');
-  const startBtn = el('start-sim-btn');
-  const lastResultBox = el('last-result'), lastResultText = el('last-result-text');
-
-  const screens = {
-    home: el('screen-home'), draw: el('screen-draw'), sim: el('screen-sim'), result: el('screen-result'),
+if (score >= 5) {
+  return {
+    tier: "稀有級冒險",
+    story: "這次冒險有不少不錯的收穫。",
+    can: 80,
+    fish: 70,
+    coin: 15
   };
-  function showScreen(name) {
-    Object.values(screens).forEach(s => s.classList.add('hidden'));
-    screens[name].classList.remove('hidden');
+}
+
+return {
+  tier: "普通級冒險",
+  story: "平穩完成了一趟冒險。",
+  can: 50,
+  fish: 40,
+  coin: 8
+};
+```
+
+}
+
+function finishSimulation() {
+
+```
+const result = getResult();
+
+state.can += result.can;
+state.fish += result.fish;
+state.coin += result.coin;
+
+$("result-tier").textContent =
+  result.tier;
+
+$("result-story").textContent =
+  result.story;
+
+$("reward-can").textContent =
+  result.can;
+
+$("reward-fish").textContent =
+  result.fish;
+
+$("reward-coin").textContent =
+  result.coin;
+
+$("last-result").classList.remove("hidden");
+
+$("last-result-text").textContent =
+  result.tier + "｜" + result.story;
+
+saveGame();
+updateUI();
+
+showScreen("result");
+```
+
+}
+
+$("luck-upgrade-btn").addEventListener(
+"click",
+() => {
+
+```
+  if (state.luckLevel >= TALENT.luck.maxLevel) {
+    return;
   }
 
-  const tagGrid = el('tag-grid');
-  const pickCountEl = el('pick-count');
-  const confirmPickBtn = el('confirm-pick-btn');
-  const rerollBtn = el('reroll-btn'), rerollStockEl = el('reroll-stock');
+  const cost = getLuckCost();
 
-  const simLog = el('sim-log');
-  const simChoices = el('sim-choices');
-  const simContinueBtn = el('sim-continue-btn');
-
-  const resultTierEl = el('result-tier'), resultStoryEl = el('result-story');
-  const rewardCanEl = el('reward-can'), rewardFishEl = el('reward-fish'), rewardCoinEl = el('reward-coin');
-  const resultBackBtn = el('result-back-btn');
-
-  const shopBtn = el('kb-shop-btn'), shopOverlay = el('shop-overlay'), shopClose = el('shop-close');
-
-  /* =====================================================
-     天賦成本 & 效果
-  ===================================================== */
-  const MAX_LEVEL = 10;
-  function luckCost(lv) { return 30 * (lv + 1); }
-  function courageCost(lv) { return 25 * (lv + 1); }
-
-  function updateHomeUI() {
-    curCan.textContent = state.can;
-    curFish.textContent = state.fish;
-    curCoin.textContent = state.coin;
-    luckLevelEl.textContent = 'Lv.' + state.luckLv;
-    courageLevelEl.textContent = 'Lv.' + state.courageLv;
-    luckCostEl.textContent = luckCost(state.luckLv);
-    courageCostEl.textContent = courageCost(state.courageLv);
-    luckBtn.disabled = state.luckLv >= MAX_LEVEL || state.can < luckCost(state.luckLv);
-    courageBtn.disabled = state.courageLv >= MAX_LEVEL || state.fish < courageCost(state.courageLv);
-    rerollStockEl.textContent = state.rerollStock;
+  if (state.can < cost) {
+    return;
   }
 
-  luckBtn.addEventListener('click', () => {
-    const cost = luckCost(state.luckLv);
-    if (state.luckLv >= MAX_LEVEL || state.can < cost) return;
-    state.can -= cost; state.luckLv += 1;
-    persist(); updateHomeUI();
-  });
-  courageBtn.addEventListener('click', () => {
-    const cost = courageCost(state.courageLv);
-    if (state.courageLv >= MAX_LEVEL || state.fish < cost) return;
-    state.fish -= cost; state.courageLv += 1;
-    persist(); updateHomeUI();
-  });
+  state.can -= cost;
+  state.luckLevel++;
 
-  /* =====================================================
-     抽詞條邏輯
-  ===================================================== */
-  function pickWeightedTier(forceMinIndex = 0) {
-    const luckBoost = state.luckLv;
-    const weights = TIERS.map((t, i) => {
-      let w = t.weight;
-      if (i >= 4) w *= (1 + 0.18 * luckBoost);
-      else if (i <= 1) w *= Math.max(0.35, 1 - 0.07 * luckBoost);
-      if (i < forceMinIndex) w = 0;
-      return w;
-    });
-    const total = weights.reduce((a, b) => a + b, 0);
-    let r = Math.random() * total;
-    for (let i = 0; i < TIERS.length; i++) {
-      r -= weights[i];
-      if (r <= 0) return i;
-    }
-    return TIERS.length - 1;
+  saveGame();
+  updateUI();
+}
+```
+
+);
+
+$("courage-upgrade-btn").addEventListener(
+"click",
+() => {
+
+```
+  if (
+    state.courageLevel >=
+    TALENT.courage.maxLevel
+  ) {
+    return;
   }
 
-  function makeTag(forceMinIndex) {
-    const tierIndex = pickWeightedTier(forceMinIndex);
-    const tier = TIERS[tierIndex];
-    const name = tier.key === 'ex'
-      ? EX_NAMES[Math.floor(Math.random() * EX_NAMES.length)]
-      : DESCRIPTORS[Math.floor(Math.random() * DESCRIPTORS.length)];
-    return { tierIndex, tier, name };
+  const cost = getCourageCost();
+
+  if (state.fish < cost) {
+    return;
   }
 
-  let currentTags = [];
-  let pickedIndexes = [];
-  let usedCharmThisDraw = false;
+  state.fish -= cost;
+  state.courageLevel++;
 
-  function renderTagGrid() {
-    tagGrid.innerHTML = '';
-    currentTags.forEach((tag, i) => {
-      const card = document.createElement('button');
-      card.className = 'kb-tag-card' + (pickedIndexes.includes(i) ? ' picked' : '');
-      card.style.background = `linear-gradient(160deg, ${tag.tier.color}22, transparent)`;
-      card.style.borderColor = pickedIndexes.includes(i) ? '#fff' : tag.tier.color;
-      card.innerHTML = `
-        <div class="kb-tag-tier" style="color:${tag.tier.color}">${tag.tier.name}</div>
-        <div class="kb-tag-name">${tag.name}</div>
-        <div class="kb-tag-power">強度 ${tag.tier.power}</div>
-      `;
-      card.addEventListener('click', () => toggleTagPick(i));
-      tagGrid.appendChild(card);
-    });
-    pickCountEl.textContent = pickedIndexes.length;
-    confirmPickBtn.disabled = pickedIndexes.length !== 3;
+  saveGame();
+  updateUI();
+}
+```
+
+);
+
+$("start-sim-btn").addEventListener(
+"click",
+() => {
+drawTags();
+showScreen("draw");
+}
+);
+
+$("confirm-pick-btn").addEventListener(
+"click",
+startSimulation
+);
+
+$("reroll-btn").addEventListener(
+"click",
+() => {
+
+```
+  if (state.reroll <= 0) {
+    return;
   }
 
-  function toggleTagPick(i) {
-    const idx = pickedIndexes.indexOf(i);
-    if (idx >= 0) {
-      pickedIndexes.splice(idx, 1);
-    } else {
-      if (pickedIndexes.length >= 3) return;
-      pickedIndexes.push(i);
-    }
-    renderTagGrid();
-  }
+  state.reroll--;
 
-  function startDraw() {
-    const forceMin = usedCharmThisDraw ? GREEN_INDEX : 0;
-    currentTags = Array.from({ length: 7 }, () => makeTag(forceMin));
-    pickedIndexes = [];
-    renderTagGrid();
-    rerollStockEl.textContent = state.rerollStock;
-    rerollBtn.disabled = state.rerollStock <= 0;
-    showScreen('draw');
-  }
+  drawTags();
 
-  rerollBtn.addEventListener('click', () => {
-    if (state.rerollStock <= 0) return;
-    state.rerollStock -= 1;
-    persist();
-    startDraw();
-  });
+  saveGame();
+  updateUI();
 
-  startBtn.addEventListener('click', () => {
-    usedCharmThisDraw = state.charmStock > 0;
-    if (usedCharmThisDraw) { state.charmStock -= 1; persist(); }
-    startDraw();
-  });
+  $("reroll-stock").textContent =
+    state.reroll;
+}
+```
 
-  /* =====================================================
-     模擬過程
-  ===================================================== */
-  let simScore = 0;
-  let simSteps = [];
-  let simStepIndex = 0;
-  let simTagsUsed = [];
+);
 
-  confirmPickBtn.addEventListener('click', () => {
-    simTagsUsed = pickedIndexes.map(i => currentTags[i]);
-    const basePower = simTagsUsed.reduce((sum, t) => sum + t.tier.power, 0);
-    simScore = 0;
-    simStepIndex = 0;
-    simLog.innerHTML = '';
-    simChoices.classList.add('hidden');
-    simContinueBtn.classList.remove('hidden');
+$("result-back-btn").addEventListener(
+"click",
+() => {
+showScreen("home");
+}
+);
 
-    const mascotName = '加碼多多';
-    const shuffledAuto = [...AUTO_EVENTS].sort(() => Math.random() - 0.5).slice(0, 3);
-    const majorEvent = MAJOR_EVENTS[Math.floor(Math.random() * MAJOR_EVENTS.length)];
+$("kb-shop-btn").addEventListener(
+"click",
+() => {
+$("shop-overlay").classList.remove("hidden");
+}
+);
 
-    simSteps = [
-      { type: 'auto', text: shuffledAuto[0].replace('{name}', mascotName), power: basePower },
-      { type: 'major', event: majorEvent, mascotName },
-      { type: 'auto', text: shuffledAuto[1].replace('{name}', mascotName), power: basePower },
-      { type: 'auto', text: shuffledAuto[2].replace('{name}', mascotName), power: basePower },
-    ];
+$("shop-close").addEventListener(
+"click",
+() => {
+$("shop-overlay").classList.add("hidden");
+}
+);
 
-    showScreen('sim');
-    runNextStep();
-  });
+$("shop-overlay").addEventListener(
+"click",
+event => {
+if (event.target === $("shop-overlay")) {
+$("shop-overlay").classList.add("hidden");
+}
+}
+);
 
-  function logLine(text, delta) {
-    const line = document.createElement('div');
-    let cls = 'kb-sim-log-line';
-    let suffix = '';
-    if (typeof delta === 'number') {
-      cls += delta >= 0 ? ' delta-pos' : ' delta-neg';
-      suffix = ` (${delta >= 0 ? '+' : ''}${delta})`;
-    }
-    line.className = cls;
-    line.textContent = text + suffix;
-    simLog.appendChild(line);
-    simLog.scrollTop = simLog.scrollHeight;
-  }
+document.querySelectorAll(".kb-shop-buy-btn")
+.forEach(button => {
 
-  function runNextStep() {
-    if (simStepIndex >= simSteps.length) {
-      simContinueBtn.classList.add('hidden');
-      finishSimulation();
-      return;
-    }
-    const step = simSteps[simStepIndex];
-    if (step.type === 'auto') {
-      const delta = Math.round(step.power * (0.4 + Math.random() * 0.5));
-      simScore += delta;
-      logLine(step.text, delta);
-      simStepIndex += 1;
-      simContinueBtn.classList.remove('hidden');
-    } else if (step.type === 'major') {
-      logLine('【重大事件】' + step.event.text);
-      simContinueBtn.classList.add('hidden');
-      simChoices.classList.remove('hidden');
-      simChoices.innerHTML = '';
-      step.event.choices.forEach(choice => {
-        const btn = document.createElement('button');
-        btn.className = 'kb-choice-btn';
-        btn.textContent = choice.label;
-        btn.addEventListener('click', () => resolveChoice(choice));
-        simChoices.appendChild(btn);
-      });
-    }
-  }
+```
+  button.addEventListener(
+    "click",
+    () => {
 
-  function resolveChoice(choice) {
-    simChoices.classList.add('hidden');
-    const basePower = simTagsUsed.reduce((sum, t) => sum + t.tier.power, 0);
-    let delta;
-    if (choice.risk === 'safe') {
-      delta = Math.round(basePower * 0.5);
-      logLine('選擇了「' + choice.label + '」，穩穩地過關了。', delta);
-    } else {
-      const roll = Math.random() * 100 + state.courageLv * 3;
-      if (roll >= 45) {
-        delta = Math.round(basePower * 1.6);
-        logLine('選擇了「' + choice.label + '」，運氣不錯，大有收穫！', delta);
-      } else {
-        delta = -Math.round(basePower * 0.6);
-        logLine('選擇了「' + choice.label + '」，結果出了點意外…', delta);
+      const item =
+        button.dataset.item;
+
+      const price =
+        Number(button.dataset.price);
+
+      if (state.coin < price) {
+        return;
       }
-    }
-    simScore += delta;
-    simStepIndex += 1;
-    simContinueBtn.classList.remove('hidden');
-  }
 
-  simContinueBtn.addEventListener('click', runNextStep);
-
-  /* =====================================================
-     結算
-  ===================================================== */
-  function finishSimulation() {
-    const basePower = simTagsUsed.reduce((sum, t) => sum + t.tier.power, 0);
-    const baseline = basePower * 3;
-    const ratio = simScore / Math.max(1, baseline);
-
-    let tierLabel, tierColor, story;
-    if (ratio >= 1.5) { tierLabel = '🌟 大成功'; tierColor = 'var(--mint)'; story = '加碼多多滿載而歸，這次的冒險超乎想像！'; }
-    else if (ratio >= 1.1) { tierLabel = '✅ 成功'; tierColor = 'var(--mint)'; story = '順利完成了這趟探險，收穫不錯。'; }
-    else if (ratio >= 0.8) { tierLabel = '🙂 普通'; tierColor = 'var(--text)'; story = '平平淡淡地回來了，算是穩紮穩打。'; }
-    else if (ratio >= 0.5) { tierLabel = '😥 小失敗'; tierColor = 'var(--coral)'; story = '這次運氣不太好，但至少平安回來了。'; }
-    else { tierLabel = '💀 慘敗'; tierColor = 'var(--coral)'; story = '這趟冒險狀況百出，加碼多多灰頭土臉地回來了。'; }
-
-    const rewardCan = Math.max(3, Math.round(10 + simScore * 0.8));
-    const rewardFish = Math.max(2, Math.round(6 + simScore * 0.5));
-    const rarestPower = Math.max(...simTagsUsed.map(t => t.tier.power));
-    const rewardCoin = Math.max(1, Math.round(2 + rarestPower * 1.2 + (ratio >= 1.5 ? 5 : 0)));
-
-    state.can += rewardCan;
-    state.fish += rewardFish;
-    state.coin += rewardCoin;
-    persist();
-
-    resultTierEl.textContent = tierLabel;
-    resultTierEl.style.color = tierColor;
-    resultStoryEl.textContent = story;
-    rewardCanEl.textContent = rewardCan;
-    rewardFishEl.textContent = rewardFish;
-    rewardCoinEl.textContent = rewardCoin;
-
-    lastResultBox.classList.remove('hidden');
-    lastResultText.textContent = `${tierLabel}　🥫+${rewardCan}　🐟+${rewardFish}　🪙+${rewardCoin}`;
-
-    showScreen('result');
-  }
-
-  resultBackBtn.addEventListener('click', () => {
-    updateHomeUI();
-    showScreen('home');
-  });
-
-  /* =====================================================
-     商店
-  ===================================================== */
-  shopBtn.addEventListener('click', () => {
-    document.querySelectorAll('.kb-shop-buy-btn').forEach(btn => {
-      const price = Number(btn.dataset.price);
-      if (btn.dataset.item === 'title' && state.hasTitle) {
-        btn.textContent = '已擁有';
-        btn.disabled = true;
-      } else {
-        btn.disabled = state.coin < price;
+      if (item === "title" && state.titleOwned) {
+        return;
       }
-    });
-    shopOverlay.classList.remove('hidden');
-  });
-  shopClose.addEventListener('click', () => shopOverlay.classList.add('hidden'));
-  shopOverlay.addEventListener('click', (e) => { if (e.target === shopOverlay) shopOverlay.classList.add('hidden'); });
 
-  document.querySelectorAll('.kb-shop-buy-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const price = Number(btn.dataset.price);
-      const item = btn.dataset.item;
-      if (state.coin < price) return;
       state.coin -= price;
-      if (item === 'reroll') state.rerollStock += 1;
-      else if (item === 'charm') state.charmStock += 1;
-      else if (item === 'title') { state.hasTitle = true; btn.textContent = '已擁有'; btn.disabled = true; }
-      persist();
-      updateHomeUI();
-      curCoin.textContent = state.coin;
-      document.querySelectorAll('.kb-shop-buy-btn').forEach(b => {
-        const p = Number(b.dataset.price);
-        if (b.dataset.item === 'title' && state.hasTitle) { b.disabled = true; }
-        else b.disabled = state.coin < p;
-      });
-    });
-  });
 
-  /* =====================================================
-     初始化
-  ===================================================== */
-  updateHomeUI();
-  showScreen('home');
+      if (item === "reroll") {
+        state.reroll++;
+      }
+
+      if (item === "charm") {
+        state.charm++;
+      }
+
+      if (item === "title") {
+        state.titleOwned = true;
+        button.textContent = "已購買";
+        button.disabled = true;
+      }
+
+      saveGame();
+      updateUI();
+
+      $("reroll-stock").textContent =
+        state.reroll;
+    }
+  );
+});
+```
+
+loadSave();
+updateUI();
+
+$("reroll-stock").textContent =
+state.reroll;
+
 })();
