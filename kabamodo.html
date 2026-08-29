@@ -1,15 +1,19 @@
 <!DOCTYPE html>
+
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>加碼多多模擬器</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="kabamodo.css">
 </head>
+
 <body class="games-body">
 
 <canvas id="star-canvas"></canvas>
@@ -23,105 +27,245 @@
   </header>
 
   <div class="kb-currency-bar">
-    <div class="kb-currency"><span class="kb-currency-icon">🥫</span><span id="cur-can">0</span></div>
-    <div class="kb-currency"><span class="kb-currency-icon">🐟</span><span id="cur-fish">0</span></div>
-    <div class="kb-currency"><span class="kb-currency-icon">🪙</span><span id="cur-coin">0</span></div>
+    <div class="kb-currency">
+      <span class="kb-currency-icon">🥫</span>
+      <span id="cur-can">0</span>
+    </div>
+
+```
+<div class="kb-currency">
+  <span class="kb-currency-icon">🐟</span>
+  <span id="cur-fish">0</span>
+</div>
+
+<div class="kb-currency">
+  <span class="kb-currency-icon">🪙</span>
+  <span id="cur-coin">0</span>
+</div>
+```
+
   </div>
 
-  <!-- ===================== 首頁 ===================== -->
   <section id="screen-home" class="kb-screen">
-    <div class="kb-mascot">🐹</div>
-    <p class="kb-flavor">加碼多多又要出發探險了，這次會遇到什麼呢？</p>
 
-    <div class="kb-talents">
-      <div class="kb-talent">
-        <div class="kb-talent-head">
-          <span>🍀 幸運天賦</span>
-          <span id="luck-level">Lv.0</span>
-        </div>
-        <p class="kb-talent-desc">提高抽到高級詞條的機率</p>
-        <button id="luck-upgrade-btn" class="kb-talent-btn">升級（<span id="luck-cost">30</span> 🥫）</button>
-      </div>
-      <div class="kb-talent">
-        <div class="kb-talent-head">
-          <span>💪 膽識天賦</span>
-          <span id="courage-level">Lv.0</span>
-        </div>
-        <p class="kb-talent-desc">重大事件選風險選項時，降低翻車機率</p>
-        <button id="courage-upgrade-btn" class="kb-talent-btn">升級（<span id="courage-cost">25</span> 🐟）</button>
-      </div>
+```
+<div class="kb-mascot">🐹</div>
+
+<p class="kb-flavor">
+  加碼多多又要出發探險了，這次會遇到什麼呢？
+</p>
+
+<div class="kb-talents">
+
+  <div class="kb-talent">
+
+    <div class="kb-talent-head">
+      <span>🍀 幸運天賦</span>
+      <span id="luck-level">Lv.0</span>
     </div>
 
-    <button id="start-sim-btn" class="kb-btn-primary">🎲 開始模擬</button>
+    <p class="kb-talent-desc">
+      提高抽到高級詞條的機率
+    </p>
 
-    <div id="last-result" class="kb-last-result hidden">
-      <p class="kb-last-result-title">上次模擬結果</p>
-      <p id="last-result-text"></p>
+    <p class="kb-talent-rate">
+      高級詞條機率：
+      <strong id="luck-rate">10%</strong>
+    </p>
+
+    <button id="luck-upgrade-btn" class="kb-talent-btn">
+      升級（<span id="luck-cost">30</span> 🥫）
+    </button>
+
+  </div>
+
+  <div class="kb-talent">
+
+    <div class="kb-talent-head">
+      <span>💪 膽識天賦</span>
+      <span id="courage-level">Lv.0</span>
     </div>
+
+    <p class="kb-talent-desc">
+      重大事件選風險選項時，降低翻車機率
+    </p>
+
+    <p class="kb-talent-rate">
+      風險事件成功率：
+      <strong id="courage-rate">50%</strong>
+    </p>
+
+    <button id="courage-upgrade-btn" class="kb-talent-btn">
+      升級（<span id="courage-cost">25</span> 🐟）
+    </button>
+
+  </div>
+
+</div>
+
+<button id="start-sim-btn" class="kb-btn-primary">
+  🎲 開始模擬
+</button>
+
+<div id="last-result" class="kb-last-result hidden">
+  <p class="kb-last-result-title">上次模擬結果</p>
+  <p id="last-result-text"></p>
+</div>
+```
+
   </section>
 
-  <!-- ===================== 抽選詞條畫面 ===================== -->
   <section id="screen-draw" class="kb-screen hidden">
-    <h2 class="kb-screen-title">選出 3 個詞條（<span id="pick-count">0</span>/3）</h2>
-    <div id="tag-grid" class="kb-tag-grid"></div>
-    <div class="kb-draw-actions">
-      <button id="reroll-btn" class="kb-btn-secondary">🔄 重抽（<span id="reroll-stock">0</span>）</button>
-      <button id="confirm-pick-btn" class="kb-btn-primary" disabled>確認出發</button>
-    </div>
+
+```
+<h2 class="kb-screen-title">
+  選出 3 個詞條（<span id="pick-count">0</span>/3）
+</h2>
+
+<div id="tag-grid" class="kb-tag-grid"></div>
+
+<div class="kb-draw-actions">
+
+  <button id="reroll-btn" class="kb-btn-secondary">
+    🔄 重抽（<span id="reroll-stock">0</span>）
+  </button>
+
+  <button id="confirm-pick-btn" class="kb-btn-primary" disabled>
+    確認出發
+  </button>
+
+</div>
+```
+
   </section>
 
-  <!-- ===================== 模擬過程畫面 ===================== -->
   <section id="screen-sim" class="kb-screen hidden">
-    <h2 class="kb-screen-title">模擬中…</h2>
-    <div id="sim-log" class="kb-sim-log"></div>
-    <div id="sim-choices" class="kb-sim-choices hidden"></div>
-    <button id="sim-continue-btn" class="kb-btn-primary hidden">繼續</button>
+
+```
+<h2 class="kb-screen-title">
+  模擬中…
+</h2>
+
+<div id="sim-log" class="kb-sim-log"></div>
+
+<div id="sim-choices" class="kb-sim-choices hidden"></div>
+
+<button id="sim-continue-btn" class="kb-btn-primary hidden">
+  繼續
+</button>
+```
+
   </section>
 
-  <!-- ===================== 結算畫面 ===================== -->
   <section id="screen-result" class="kb-screen hidden">
-    <h2 id="result-tier" class="kb-result-tier"></h2>
-    <p id="result-story" class="kb-result-story"></p>
-    <div class="kb-result-rewards">
-      <div class="kb-reward-item"><span class="kb-currency-icon">🥫</span> +<span id="reward-can">0</span></div>
-      <div class="kb-reward-item"><span class="kb-currency-icon">🐟</span> +<span id="reward-fish">0</span></div>
-      <div class="kb-reward-item"><span class="kb-currency-icon">🪙</span> +<span id="reward-coin">0</span></div>
-    </div>
-    <button id="result-back-btn" class="kb-btn-primary">回到首頁</button>
+
+```
+<h2 id="result-tier" class="kb-result-tier"></h2>
+
+<p id="result-story" class="kb-result-story"></p>
+
+<div class="kb-result-rewards">
+
+  <div class="kb-reward-item">
+    <span class="kb-currency-icon">🥫</span>
+    +<span id="reward-can">0</span>
+  </div>
+
+  <div class="kb-reward-item">
+    <span class="kb-currency-icon">🐟</span>
+    +<span id="reward-fish">0</span>
+  </div>
+
+  <div class="kb-reward-item">
+    <span class="kb-currency-icon">🪙</span>
+    +<span id="reward-coin">0</span>
+  </div>
+
+</div>
+
+<button id="result-back-btn" class="kb-btn-primary">
+  回到首頁
+</button>
+```
+
   </section>
 
 </div>
 
-<!-- ===================== 商店彈窗 ===================== -->
 <div id="shop-overlay" class="kb-overlay hidden">
+
   <div class="kb-shop-panel">
-    <button id="shop-close" class="kb-shop-close">×</button>
-    <h2>模擬幣商店</h2>
-    <div class="kb-shop-item">
-      <div>
-        <p class="kb-shop-item-name">🔄 重抽券 x1</p>
-        <p class="kb-shop-item-desc">下次模擬多一次重抽機會</p>
-      </div>
-      <button class="kb-shop-buy-btn" data-item="reroll" data-price="15">15 🪙</button>
-    </div>
-    <div class="kb-shop-item">
-      <div>
-        <p class="kb-shop-item-name">🍀 幸運符 x1</p>
-        <p class="kb-shop-item-desc">下次模擬 7 個詞條保底綠色以上</p>
-      </div>
-      <button class="kb-shop-buy-btn" data-item="charm" data-price="40">40 🪙</button>
-    </div>
-    <div class="kb-shop-item">
-      <div>
-        <p class="kb-shop-item-name">🏷️ 稱號：多多的老朋友</p>
-        <p class="kb-shop-item-desc">純裝飾稱號，顯示在首頁</p>
-      </div>
-      <button id="title-buy-btn" class="kb-shop-buy-btn" data-item="title" data-price="100">100 🪙</button>
-    </div>
+
+```
+<button id="shop-close" class="kb-shop-close">
+  ×
+</button>
+
+<h2>模擬幣商店</h2>
+
+<div class="kb-shop-item">
+
+  <div>
+    <p class="kb-shop-item-name">🔄 重抽券 x1</p>
+    <p class="kb-shop-item-desc">
+      下次模擬多一次重抽機會
+    </p>
   </div>
+
+  <button class="kb-shop-buy-btn"
+          data-item="reroll"
+          data-price="15">
+    15 🪙
+  </button>
+
+</div>
+
+<div class="kb-shop-item">
+
+  <div>
+    <p class="kb-shop-item-name">🍀 幸運符 x1</p>
+    <p class="kb-shop-item-desc">
+      下次模擬 7 個詞條保底綠色以上
+    </p>
+  </div>
+
+  <button class="kb-shop-buy-btn"
+          data-item="charm"
+          data-price="40">
+    40 🪙
+  </button>
+
+</div>
+
+<div class="kb-shop-item">
+
+  <div>
+    <p class="kb-shop-item-name">
+      🏷️ 稱號：多多的老朋友
+    </p>
+
+    <p class="kb-shop-item-desc">
+      純裝飾稱號，顯示在首頁
+    </p>
+  </div>
+
+  <button id="title-buy-btn"
+          class="kb-shop-buy-btn"
+          data-item="title"
+          data-price="100">
+    100 🪙
+  </button>
+
+</div>
+```
+
+  </div>
+
 </div>
 
 <script src="script.js"></script>
+
 <script src="kabamodo.js"></script>
+
 </body>
 </html>
