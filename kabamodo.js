@@ -15,6 +15,9 @@
     { key: 'ex',      name: 'EX',  color: '#fff6c8', power: 15, weight: 0.1  },
   ];
   const GREEN_INDEX = TIERS.findIndex(t => t.key === 'green');
+  const MAX_LEVEL = 20;
+  const TIER_MAX_WEIGHTS = [0.1, 0.1, 0.1, 18.0, 17.5, 14.0, 9.2, 25.0, 15.0, 1.0]; // Lv.20 滿級時的目標機率（總和=100）
+  const TIER_BASE_WEIGHTS = TIERS.map(t => t.weight); // Lv.0 起始權重
 
   const DESCRIPTORS = [
     '敏銳嗅覺', '堅韌步伐', '幸運符咒', '神秘直覺', '過人膽識',
@@ -129,7 +132,6 @@
   /* =====================================================
      天賦成本 & 效果
   ===================================================== */
-  const MAX_LEVEL = 10;
   function luckCost(lv) { return 30 * (lv + 1); }
   function courageCost(lv) { return 25 * (lv + 1); }
 
@@ -150,10 +152,20 @@
     curCoin.textContent = state.coin;
     luckLevelEl.textContent = 'Lv.' + state.luckLv;
     courageLevelEl.textContent = 'Lv.' + state.courageLv;
-    luckCostEl.textContent = luckCost(state.luckLv);
-    courageCostEl.textContent = courageCost(state.courageLv);
-    luckBtn.disabled = state.luckLv >= MAX_LEVEL || state.can < luckCost(state.luckLv);
-    courageBtn.disabled = state.courageLv >= MAX_LEVEL || state.fish < courageCost(state.courageLv);
+    if (state.luckLv >= MAX_LEVEL) {
+      luckBtn.textContent = 'MAX';
+      luckBtn.disabled = true;
+    } else {
+      luckBtn.innerHTML = `升級（<span id="luck-cost">${luckCost(state.luckLv)}</span> 🥫）`;
+      luckBtn.disabled = state.can < luckCost(state.luckLv);
+    }
+    if (state.courageLv >= MAX_LEVEL) {
+      courageBtn.textContent = 'MAX';
+      courageBtn.disabled = true;
+    } else {
+      courageBtn.innerHTML = `升級（<span id="courage-cost">${courageCost(state.courageLv)}</span> 🐟）`;
+      courageBtn.disabled = state.fish < courageCost(state.courageLv);
+    }
     rerollStockEl.textContent = state.rerollStock;
     renderLuckProbList(state.luckLv);
     courageProbEl.textContent = calcRiskySuccessProb(state.courageLv).toFixed(1) + '%';
@@ -176,10 +188,9 @@
      抽詞條邏輯
   ===================================================== */
   function computeTierWeights(luckLv, forceMinIndex = 0) {
-    return TIERS.map((t, i) => {
-      let w = t.weight;
-      if (i >= 4) w *= (1 + 0.18 * luckLv);
-      else if (i <= 1) w *= Math.max(0.35, 1 - 0.07 * luckLv);
+    const t = Math.min(luckLv, MAX_LEVEL) / MAX_LEVEL;
+    return TIERS.map((tier, i) => {
+      let w = TIER_BASE_WEIGHTS[i] + (TIER_MAX_WEIGHTS[i] - TIER_BASE_WEIGHTS[i]) * t;
       if (i < forceMinIndex) w = 0;
       return w;
     });
@@ -196,8 +207,8 @@
   }
 
   function calcRiskySuccessProb(courageLv) {
-    // 對應 resolveChoice 裡的判定：roll = random(0,100) + courageLv*3 >= 45
-    const prob = (55 + courageLv * 3) / 100 * 100;
+    // 對應 resolveChoice 裡的判定：roll = random(0,100) + courageLv*2.25 >= 45
+    const prob = (55 + courageLv * 2.25);
     return Math.min(100, Math.max(0, prob));
   }
 
@@ -360,7 +371,7 @@
       delta = Math.round(basePower * 0.5);
       logLine('選擇了「' + choice.label + '」，穩穩地過關了。', delta);
     } else {
-      const roll = Math.random() * 100 + state.courageLv * 3;
+      const roll = Math.random() * 100 + state.courageLv * 2.25;
       if (roll >= 45) {
         delta = Math.round(basePower * 1.6);
         logLine('選擇了「' + choice.label + '」，運氣不錯，大有收穫！', delta);
