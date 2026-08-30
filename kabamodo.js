@@ -15,7 +15,7 @@
     { key: 'ex',      name: 'EX',  color: '#fff6c8', power: 15, weight: 0.1  },
   ];
   const GREEN_INDEX = TIERS.findIndex(t => t.key === 'green');
-  const MAX_LEVEL = 20;
+  const MAX_LEVEL = 23;
   const TIER_MAX_WEIGHTS = [0.1, 0.1, 0.1, 18.0, 17.5, 14.0, 9.2, 25.0, 15.0, 1.0]; // Lv.20 滿級時的目標機率（總和=100）
   const TIER_BASE_WEIGHTS = TIERS.map(t => t.weight); // Lv.0 起始權重
 
@@ -132,8 +132,16 @@
   /* =====================================================
      天賦成本 & 效果
   ===================================================== */
-  function luckCost(lv) { return 30 * (lv + 1); }
-  function courageCost(lv) { return 25 * (lv + 1); }
+  function luckCost(lv) {
+    if (lv === 21) return 999999; // 21→22：故意卡關
+    if (lv === 22) return 50;     // 22→23：突然變便宜
+    return 30 * (lv + 1);
+  }
+  function courageCost(lv) {
+    if (lv === 21) return 999999; // 21→22：故意卡關
+    if (lv === 22) return 50;     // 22→23：突然變便宜
+    return 25 * (lv + 1);
+  }
 
   const luckProbListEl = el('luck-prob-list'), courageProbEl = el('courage-prob');
 
