@@ -133,6 +133,17 @@
   function luckCost(lv) { return 30 * (lv + 1); }
   function courageCost(lv) { return 25 * (lv + 1); }
 
+  const luckProbListEl = el('luck-prob-list'), courageProbEl = el('courage-prob');
+
+  function renderLuckProbList(luckLv) {
+    const probs = calcTierProbs(luckLv);
+    luckProbListEl.innerHTML = probs.map(p => `
+      <span class="kb-prob-chip" style="color:${p.color};border-color:${p.color}66">
+        ${p.name} ${p.pct.toFixed(1)}%
+      </span>
+    `).join('');
+  }
+
   function updateHomeUI() {
     curCan.textContent = state.can;
     curFish.textContent = state.fish;
@@ -144,6 +155,8 @@
     luckBtn.disabled = state.luckLv >= MAX_LEVEL || state.can < luckCost(state.luckLv);
     courageBtn.disabled = state.courageLv >= MAX_LEVEL || state.fish < courageCost(state.courageLv);
     rerollStockEl.textContent = state.rerollStock;
+    renderLuckProbList(state.luckLv);
+    courageProbEl.textContent = calcRiskySuccessProb(state.courageLv).toFixed(1) + '%';
   }
 
   luckBtn.addEventListener('click', () => {
@@ -162,15 +175,34 @@
   /* =====================================================
      抽詞條邏輯
   ===================================================== */
-  function pickWeightedTier(forceMinIndex = 0) {
-    const luckBoost = state.luckLv;
-    const weights = TIERS.map((t, i) => {
+  function computeTierWeights(luckLv, forceMinIndex = 0) {
+    return TIERS.map((t, i) => {
       let w = t.weight;
-      if (i >= 4) w *= (1 + 0.18 * luckBoost);
-      else if (i <= 1) w *= Math.max(0.35, 1 - 0.07 * luckBoost);
+      if (i >= 4) w *= (1 + 0.18 * luckLv);
+      else if (i <= 1) w *= Math.max(0.35, 1 - 0.07 * luckLv);
       if (i < forceMinIndex) w = 0;
       return w;
     });
+  }
+
+  function calcTierProbs(luckLv) {
+    const weights = computeTierWeights(luckLv);
+    const total = weights.reduce((a, b) => a + b, 0);
+    return TIERS.map((t, i) => ({
+      name: t.name,
+      color: t.color,
+      pct: total > 0 ? (weights[i] / total) * 100 : 0,
+    }));
+  }
+
+  function calcRiskySuccessProb(courageLv) {
+    // 對應 resolveChoice 裡的判定：roll = random(0,100) + courageLv*3 >= 45
+    const prob = (55 + courageLv * 3) / 100 * 100;
+    return Math.min(100, Math.max(0, prob));
+  }
+
+  function pickWeightedTier(forceMinIndex = 0) {
+    const weights = computeTierWeights(state.luckLv, forceMinIndex);
     const total = weights.reduce((a, b) => a + b, 0);
     let r = Math.random() * total;
     for (let i = 0; i < TIERS.length; i++) {
@@ -199,7 +231,7 @@
       const card = document.createElement('button');
       card.className = 'kb-tag-card' + (pickedIndexes.includes(i) ? ' picked' : '');
       card.style.background = `linear-gradient(160deg, ${tag.tier.color}22, transparent)`;
-      card.style.borderColor = pickedIndexes.includes(i) ? '#fff' : tag.tier.color;
+      card.style.borderColor = pickedIndexes.includes(i) ? '#ff3b3b' : tag.tier.color;
       card.innerHTML = `
         <div class="kb-tag-tier" style="color:${tag.tier.color}">${tag.tier.name}</div>
         <div class="kb-tag-name">${tag.name}</div>

@@ -87,8 +87,29 @@
 .kb-talent-desc {
   font-size: 0.82rem;
   color: var(--text-muted);
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   min-height: 34px;
+}
+.kb-talent-prob {
+  font-size: 0.8rem;
+  color: var(--mint);
+  font-weight: 700;
+  margin: 0 0 12px;
+}
+.kb-prob-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+.kb-prob-chip {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--panel-border);
+  white-space: nowrap;
 }
 .kb-talent-btn {
   width: 100%;
@@ -158,7 +179,7 @@
   transition: transform 0.12s ease, border-color 0.12s ease;
 }
 .kb-tag-card:hover { transform: translateY(-3px); }
-.kb-tag-card.picked { border-color: #fff; box-shadow: 0 0 0 3px rgba(255,255,255,0.25); }
+.kb-tag-card.picked { border-color: #ff3b3b; box-shadow: 0 0 0 3px rgba(255, 59, 59, 0.35); }
 .kb-tag-tier { font-size: 0.7rem; font-weight: 900; margin-bottom: 6px; letter-spacing: 1px; }
 .kb-tag-name { font-size: 0.95rem; font-weight: 700; }
 .kb-tag-power { font-size: 0.75rem; margin-top: 6px; opacity: 0.85; }
